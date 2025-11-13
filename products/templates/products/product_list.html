@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container-fluid my-4 px-md-5">
+    <div class="row">
+        <div class="col-md-3">
+            
+            <h3 class="mb-3">Kategoriler</h3>
+            
+            <a href="{% url 'products:product_list' %}" class="sidebar-main-link {% if not current_category %}active{% endif %}">
+                Tüm Ürünler
+            </a>
+            <div class="accordion accordion-flush" id="categoryAccordion">
+                {% for category in main_categories %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-{{ category.slug }}">
+                        <a href="{{ category.get_absolute_url }}" class="sidebar-main-link {% if current_category.slug == category.slug or current_category.parent.slug == category.slug %}active{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        {% if category.children.all %}
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ category.slug }}">
+                        </button>
+                        {% endif %}
+                    </h2>
+                    
+                    {% with parent_category=current_category.parent|default:current_category %}
+                    <div id="collapse-{{ category.slug }}" class="accordion-collapse collapse {% if parent_category.slug == category.slug %}show{% endif %}" data-bs-parent="#categoryAccordion">
+                        <div class="accordion-body">
+                            <ul class="list-unstyled sidebar-submenu">
+                                {% for child in category.children.all %}
+                                <li>
+                                    <a href="{{ child.get_absolute_url }}" class="{% if current_category.slug == child.slug %}active{% endif %}">
+                                        {{ child.name }}
+                                    </a>
+                                    
+                                    {% if child.children.all %}
+                                        <ul class="list-unstyled sidebar-submenu-inner">
+                                            {% for grandchild in child.children.all %}
+                                            <li>
+                                                <a href="{{ grandchild.get_absolute_url }}" class="{% if current_category.slug == grandchild.slug %}active{% endif %}">
+                                                    {{ grandchild.name }}
+                                                </a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+            <hr class="my-4">
+            <h3 class="mb-3">Filtrele</h3>
+            <form method="get" class="filter-form">
+                {{ product_filter.form|crispy }}
+                <div class="d-grid mt-3">
+                    <button type="submit" class="btn btn-primary">Filtrele</button>
+                </div>
+            </form>
+            </div>
+
+        <div class="col-md-9">
+            <h1 class="mb-4">{% if current_category %}{{ current_category.name }}{% else %}Ürünlerimiz{% endif %}</h1>
+            <div class="row">
+                {% for product in page_obj %}
+                    
+                    <div class="col-lg-4 col-md-6 mb-4 product-list-item">
+                        <div class="card h-100 product-card border-0 shadow-sm" data-product-slug="{{ product.slug }}">
+                            <div class="product-image-container position-relative">
+                                
+                                {% if product.image %}
+                                    <a href="{{ product.get_absolute_url }}">
+                                        <img src="{{ product.image.url }}" 
+                                            class="card-img-top js-hover-cycle-image"
+                                            alt="{{ product.name }}"
+                                            data-main-image="{{ product.image.url }}" 
+                                            data-gallery="{% for img in product.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                                        >
+                                    </a>
+                                {% else %}
+                                    <a href="{{ product.get_absolute_url }}"><img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="{{ product.name }}"></a>
+                                {% endif %}
+
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'products:toggle_favourite' product.slug %}" class="favourite-icon js-toggle-favourite">
+                                        {% if user in product.favourited_by.all %}<i class="bi bi-heart-fill"></i>{% else %}<i class="bi bi-heart"></i>{% endif %}
+                                    </a>
+                                {% endif %}
+
+                                <div class="product-info-overlay">
+                                    <h5 class="card-title fs-6 mb-0">
+                                        <a href="{{ product.get_absolute_url }}" class="text-decoration-none product-name-link">{{ product.name }}</a>
+                                    </h5>
+                                    {% with first_variant=product.variants.first %}
+                                        {% if first_variant %}
+                                            <h6 class="card-subtitle fw-bold fs-6">{{ first_variant.price }} TL</h6>
+                                        {% else %}
+                                            <h6 class="card-subtitle fw-bold fs-6">-</h6>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                
+                                <div class="quick-add-section">
+                                    <div class="quick-add-loading text-center p-2">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Yükleniyor...</span>
+                                        </div>
+                                    </div>
+                                    </div>
+
+                            </div> 
+                        </div> 
+                    </div> 
+                {% empty %}
+                    <div class="col">
+                        <div class="alert alert-info">Bu kategoride veya aramanızla eşleşen ürün bulunamadı.</div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% include "pagination.html" with page=page_obj %}
+        </div>
+    </div>
+</div>
+{% endblock %}

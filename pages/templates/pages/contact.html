@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5 py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-5 mb-4">İletişime Geçin</h1>
+            <p class="lead text-muted mb-5">Sorularınız, önerileriniz veya iş birliği talepleriniz için bize aşağıdaki kanallardan ulaşabilirsiniz.</p>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <i class="bi bi-envelope-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">E-posta</h4>
+                    <p><a href="mailto:info@auraluna.com.tr" class="text-dark">info@auraluna.com.tr</a></p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-telephone-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">Telefon</h4>
+                    <p class="text-dark">+90 555 123 45 67</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-geo-alt-fill fs-1 text-primary"></i>
+                    <h4 class="mt-3">Adres</h4>
+                    <p class="text-dark">Örnek Mahallesi, Sanat Sokak No:12/3<br>Çankaya, Ankara</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

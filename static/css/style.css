@@ -1,0 +1,760 @@
+/* static/css/style.css */
+
+/* --- Genel Stiller ve Yazı Tipleri (GÜNCELLENDİ) --- */
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: #ffffff; /* Zemin Rengi: Beyaz */
+    color: #343a40; /* Ana Metin Rengi: Kömür */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; /* Başlıklar tok görünsün */
+    color: #343a40; /* Ana Başlık Rengi: Kömür */
+}
+
+/* YENİ: Link Renkleri */
+a {
+    color: #343a40; /* Ana Metin Rengi: Kömür */
+    text-decoration: none;
+}
+a:hover {
+    color: #D4AF37; /* Vurgu: Altın */
+}
+
+.main-content { padding-top: 100px; } /* Header'ın altına içerik gelmemesi için */
+
+/* --- YENİ HEADER ve NAVİGASYON YAPISI (GÜNCELLENDİ) --- */
+.site-header {
+    /* background-color: #ffffff; -> Başlangıçta şeffaf olacak */
+    /* border-bottom: 1px solid #dee2e6; -> Başlangıçta yarı şeffaf olacak */
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    
+    /* YENİ: Geçişler ve varsayılan durum */
+    background-color: transparent; /* Başlangıçta şeffaf */
+    border-bottom: 1px solid rgba(222, 226, 230, 0.3); /* Başlangıçta yarı şeffaf border */
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* YENİ: Blurlu yansıma katmanı */
+.site-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1; /* İçeriğin (logo, linkler) arkasına gönder */
+    
+    /* JS tarafından ayarlanan --header-bg-image değişkenini kullan */
+    background-image: var(--header-bg-image);
+    background-size: cover;
+    background-position: center;
+    
+    /* Blur ve estetik ayarlar */
+    filter: blur(10px) brightness(0.9);
+    -webkit-filter: blur(10px) brightness(0.9);
+    
+    /* Slayt geçişlerinde yumuşaklık */
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* YENİ: Sadece ana sayfada (header slider'ın üzerindeyken) yansımayı göster */
+body.page-home .site-header::before {
+    opacity: 1;
+}
+
+/* YENİ: Sayfayı aşağı kaydırınca veya ana sayfa dışında */
+.site-header.scrolled,
+body:not(.page-home) .site-header {
+    background-color: #ffffff; /* Solid beyaz arkaplan */
+    border-bottom: 1px solid #dee2e6; /* Solid border */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Hafif gölge */
+}
+
+/* YENİ: Scroll edilince veya başka sayfada yansımayı gizle */
+.site-header.scrolled::before,
+body:not(.page-home) .site-header::before {
+    opacity: 0;
+}
+
+/* --- (Header'ın diğer stilleri... .header-top, .header-main-nav vb. aynı kalıyor) --- */
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+.header-search { width: 33.33%; }
+/* ... (header-search stilleriniz) ... */
+.header-logo { width: 33.33%; text-align: center; }
+.header-logo img { height: 100px; width: auto; }
+.header-icons {
+    width: 33.33%;
+    display: flex;
+    justify-content: flex-end; /* İçeriği en sağa yasla */
+}
+.header-icons .nav-link { color: #212529 !important; }
+.header-icons .navbar-nav { flex-direction: row !important; }
+.header-main-nav { border-top: 1px solid #dee2e6; padding: 5px 0; }
+.header-main-nav .nav-link { color: #212529 !important; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
+.header-main-nav .nav-link:hover { color: #D4AF37 !important; } /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+
+
+/* --- Ana Sayfa Karuseli (GÜNCELLENDİ) --- */
+.hero-swiper { 
+    width: 100%; 
+    /* YENİ: Yüksekliği tam ekran yap (header zaten üzerinde) */
+    height: 100vh; 
+}
+.hero-slide { 
+    /* YENİ: JS'nin bulabilmesi için bu değişkeni kullanacağız */
+    background-image: var(--slide-bg-image); 
+    background-size: cover; 
+    background-position: center; 
+    position: relative; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+/* YENİ: Video slaytları için stil */
+.hero-slide video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -1; /* İçeriğin arkasında */
+}
+
+.hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.4); }
+.hero-content { position: relative; z-index: 2; color: white; }
+
+/* ... (Diğer tüm stilleriniz .btn, .favourite-icon, .card, .network-style-menu vb. buradan sonra devam ediyor) ... */
+
+/* --- Ana Sayfada Main Content Padding'ini Sıfırla (GÜNCELLENDİ) --- */
+/* Bu kuralın .main-content tanımından SONRA gelmesi önemlidir */
+body.page-home main.main-content {
+    padding-top: 0 !important; /* Ana sayfada üst boşluğu kaldırır */
+}
+
+/* ... (style.css dosyanızın geri kalanı) ... */
+
+.btn { transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease; border-radius: 50px; padding: 10px 20px; font-weight: bold; }
+.btn:hover { transform: scale(1.05); }
+
+/* --- YENİ BUTON RENKLERİ --- */
+.btn-primary,
+.btn-success, /* Kayıt Ol, Güncelle */
+.btn-signup {
+    background-color: #343a40;
+    border-color: #343a40;
+    color: #ffffff;
+}
+.btn-primary:hover,
+.btn-success:hover,
+.btn-signup:hover {
+    background-color: #000000; /* Daha Koyu Kömür */
+    border-color: #000000;
+    color: #ffffff;
+}
+
+/* Butonlar - Vurgu (Altın) */
+.btn-warning { /* Şifre Değiştir, Sıfırlama Linki */
+    background-color: #D4AF37;
+    border-color: #D4AF37;
+    color: #000000; /* Altın zemin üzerine Siyah metin */
+}
+.btn-warning:hover {
+    background-color: #c09e32; /* Altın (Koyu) */
+    border-color: #c09e32;
+    color: #000000;
+}
+/* --- YENİ BUTON RENKLERİ SONU --- */
+
+.favourite-icon { position: absolute; top: 10px; right: 10px; z-index: 10; font-size: 1.5rem; color: #dc3545; text-decoration: none; transition: transform 0.2s ease; }
+.favourite-icon:hover { transform: scale(1.2); }
+.card .card-overlay-actions { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.card:hover .card-overlay-actions { opacity: 1; visibility: visible; }
+.card:hover .card-img-top { filter: brightness(0.6); transition: filter 0.3s ease; }
+
+/* .btn-signup stili yukarıda birleştirildi */
+
+.variant-swatch { border: 2px solid #343a40; background-color: #ffffff; color: #343a40; padding: 8px 15px; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; user-select: none; min-width: 50px; text-align: center; font-weight: 500; }
+.variant-swatch:hover { background-color: #f8f9fa; transform: translateY(-2px); }
+.variant-swatch.selected {
+    border-color: #343a40; /* GÜNCELLENDİ: Kömür */
+    background-color: #343a40; /* GÜNCELLENDİ: Kömür */
+    color: #ffffff; /* GÜNCELLENDİ: Beyaz */
+    font-weight: bold;
+    transform: translateY(-2px);
+}
+.variant-swatch.disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; text-decoration: line-through; border-color: #dee2e6; transform: none; }
+.quantity-selector { display: flex; }
+.quantity-selector .form-control { width: 60px; text-align: center; border-radius: 0; }
+.quantity-selector .btn { width: 40px; padding: 8px 12px; border-radius: 0; }
+.product-gallery { display: flex; gap: 1rem; }
+.thumbnail-container { display: flex; flex-direction: column; gap: 0.75rem; width: 80px; flex-shrink: 0; }
+.thumbnail-img { width: 100%; height: auto; border: 2px solid transparent; border-radius: 4px; cursor: pointer; transition: border-color 0.2s ease; }
+.thumbnail-img:hover { border-color: #dee2e6; }
+.thumbnail-img.active { border-color: #000000; }
+.main-image-container { flex-grow: 1; }
+.category-showcase-card { text-decoration: none; display: block; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.category-showcase-card .card-img { transition: transform 0.4s ease; }
+.category-showcase-card:hover .card-img { transform: scale(1.05); }
+.category-showcase-card .card-img-overlay { background-color: rgba(0, 0, 0, 0.4); }
+.sidebar-main-link { font-weight: bold; color: #212529; text-decoration: none; display: block; padding: 0.5rem 0; font-size: 1.1rem; }
+.sidebar-main-link.active { color: #D4AF37; } /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+.accordion-item { border: none; background-color: transparent; }
+.accordion-header { display: flex; align-items: center; border-bottom: 1px solid #dee2e6; }
+.accordion-header .sidebar-main-link { flex-grow: 1; }
+.accordion-button { background-color: transparent !important; box-shadow: none !important; padding: 0.5rem 0.5rem 0.5rem 0; width: auto; }
+.accordion-body { padding: 0; }
+.sidebar-submenu { padding-left: 1rem; padding-top: 0.5rem; padding-bottom: 1rem; border-bottom: 1px solid #dee2e6; }
+.sidebar-submenu a { color: #6c757d; text-decoration: none; display: block; padding: 0.3rem 0; }
+.sidebar-submenu a:hover { color: #212529; }
+.sidebar-submenu a.active { font-weight: bold; color: #212529; }
+.order-summary-card { border: 1px solid #dee2e6; border-radius: 8px; }
+.brand-logo-no-bg {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+}
+.announcement-banner.announcement-swiper {
+    background-color: #D4AF37; /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+    color: #000000; /* GÜNCELLENDİ: Siyah */
+    height: 40px; /* Sabit yükseklik */
+    overflow: hidden;
+}
+.announcement-swiper .announcement-slide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.announcement-banner .announcement-link {
+    color: #000000; /* GÜNCELLENDİ: Siyah */
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+.announcement-banner .announcement-link:hover {
+    color: #343a40; /* GÜNCELLENDİ: Kömür */
+    text-decoration: underline;
+}
+.main-navbar .nav-item {
+    position: static; 
+}
+.network-style-menu {
+    position: relative; 
+}
+.network-style-menu .mega-menu-content {
+    display: block !important; 
+    position: absolute;
+    left: 50%; 
+    transform: translateX(-50%);
+    top: 100%; 
+    width: 100%; 
+    max-width: 1140px; 
+    min-width: 800px;
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    border-top: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 0; 
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; 
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s; 
+    z-index: 1000;
+}
+.network-style-menu:hover .mega-menu-content {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s; 
+}
+.network-style-menu .mega-menu-content > .container {
+    padding: 25px 15px; 
+}
+.network-style-menu .mega-menu-content > .container > .row {
+    margin-left: 0; 
+    margin-right: 0;
+    display: flex; 
+    flex-wrap: nowrap; 
+}
+.intermediate-nav-col {
+    padding-right: 15px;
+    width: 220px; 
+    flex-shrink: 0; 
+}
+.intermediate-category-list {
+    margin: 0;
+    padding: 0;
+    list-style: none; 
+}
+.intermediate-category-list .intermediate-category-item a {
+    display: flex; 
+    align-items: center; 
+    padding: 8px 15px; 
+    color: #555;
+    font-weight: 400;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, border-left-color 0.2s ease;
+    border-radius: 0;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+}
+.intermediate-category-list .intermediate-category-item a i {
+    font-size: 1.1em; 
+    min-width: 1.5em; 
+}
+.intermediate-category-list .intermediate-category-item:hover a {
+    background-color: #f0f0f0;
+    color: #000;
+}
+.intermediate-category-list .intermediate-category-item.active a {
+    color: #000;
+    font-weight: 500;
+    border-left-color: #000;
+    background-color: #f0f0f0;
+}
+.final-nav-col {
+    padding-left: 25px;
+    position: relative; 
+    flex-grow: 1; 
+    min-height: 300px; 
+}
+.final-category-submenu {
+    display: block !important; 
+    position: absolute;
+    top: 0; 
+    left: 25px; 
+    width: calc(100% - 25px); 
+    height: 100%; 
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s; 
+    overflow-y: auto; 
+    padding-top: 5px;
+}
+.final-category-submenu.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s; 
+}
+.final-category-submenu .mega-submenu.row {
+    margin-left: -10px;
+    margin-right: -10px;
+}
+.final-category-submenu .mega-submenu .col-md-4 {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 10px;
+}
+.mega-submenu .dropdown-item {
+    padding: 3px 0;
+    color: #333;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+    white-space: normal;
+    text-decoration: none;
+}
+.mega-submenu .dropdown-item:hover {
+    color: #D4AF37; /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+    background-color: transparent;
+    text-decoration: underline;
+}
+.main-navbar .dropdown-toggle::after {
+    display: none;
+}
+@media (max-width: 991.98px) {
+   .network-style-menu:hover .mega-menu-content,
+   .network-style-menu .mega-menu-content {
+        display: none !important; 
+   }
+}
+.hero-swiper {
+    margin-top: 0 !important;
+}
+.info-icons-section {
+}
+.info-icon-wrapper {
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center;
+    width: 70px;       
+    height: 70px;      
+    background-color: #212529; 
+    color: #ffffff;    
+    border-radius: 50%;
+}
+.info-icons-section h5 {
+    font-family: 'Lato', sans-serif; 
+    font-size: 1rem;     
+    margin-top: 0.5rem;  
+    margin-bottom: 0.5rem; 
+}
+.info-icons-section p {
+    line-height: 1.4;
+}
+.header-search {
+    display: flex;
+    align-items: center;
+    padding-right: 15px; 
+}
+.search-form {
+    width: 100%; 
+    max-width: 450px; 
+}
+.search-input-container {
+    position: relative; 
+    width: 100%;
+}
+.search-input.form-control {
+    border-radius: 50px; 
+    background-color: rgba(230, 230, 230, 0.7); 
+    border: none; 
+    padding-left: 20px; 
+    padding-right: 45px; 
+    height: 44px; 
+    font-size: 0.9rem;
+    color: #555; 
+    box-shadow: none; 
+}
+.search-input.form-control:focus {
+    box-shadow: none;
+    border: none;
+    background-color: rgba(240, 240, 240, 0.8); 
+}
+.search-input.form-control::placeholder {
+    color: #888; 
+    opacity: 1;
+}
+.search-input.form-control::-webkit-input-placeholder { color: #888; }
+.search-input.form-control::-moz-placeholder { color: #888; opacity: 1; }
+.search-input.form-control:-ms-input-placeholder { color: #888; }
+.search-input.form-control::-ms-input-placeholder { color: #888; }
+.search-icon {
+    position: absolute;
+    right: 15px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    color: #777; 
+    font-size: 1.1rem; 
+    pointer-events: none; 
+}
+.header-search .form-control {
+   border-bottom: none !important; 
+   padding-left: 20px !important; 
+   height: 44px !important; 
+}
+.header-search form > .btn {
+   display: none; 
+}
+.icon-text-link .nav-link {
+    color: #333 !important; 
+    font-size: 0.85rem; 
+    font-weight: 500; 
+    padding-top: 0.5rem; 
+    padding-bottom: 0.5rem;
+}
+.icon-text-link .nav-link i {
+    color: #555; 
+    line-height: 1; 
+}
+.icon-text-link .nav-link:hover,
+.icon-text-link .nav-link:hover i {
+    color: #D4AF37 !important; /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+}
+.icon-text-link .nav-link #cart-counter {
+   font-size: 0.65em; 
+   padding: .25em .45em; 
+}
+.header-icons .nav-link {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+}
+.header-icons .navbar-nav {
+    gap: 0.5rem; 
+}
+.icon-text-link .dropdown-menu {
+    margin-top: 0.5rem !important; 
+    font-size: 0.9rem; 
+}
+.icon-text-link .dropdown-menu .dropdown-item i {
+    width: 1.2em; 
+}
+.product-list-item .product-card {
+    border: none;
+    border-radius: 0;
+    background-color: #fff;
+    box-shadow: none;
+    transition: box-shadow 0.3s ease;
+    overflow: hidden; 
+    position: relative; 
+}
+.product-list-item .product-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+.product-list-item .product-image-container {
+    overflow: hidden;
+    position: relative; 
+}
+.product-list-item .product-card .card-img-top {
+    transition: transform 0.4s ease;
+    border-radius: 0;
+    display: block; 
+}
+.product-list-item .product-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+.product-list-item .favourite-icon {
+    position: absolute; top: 10px; right: 10px; z-index: 4; 
+    background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px;
+    line-height: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+}
+.product-list-item .favourite-icon i { font-size: 1rem; }
+.product-list-item .product-quick-view-button { 
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 3;
+}
+.product-list-item .product-card:hover .product-quick-view-button {
+    opacity: 1; visibility: visible;
+}
+
+/* ================================================= */
+/* === GÜNCELLEME BURADA BAŞLIYOR (Ürün Bilgi Alanı) === */
+/* ================================================= */
+
+.product-info-overlay {
+    position: absolute; 
+    bottom: 0; left: 0; width: 100%;
+    
+    /* YENİ: Padding'i sola ve alta odakla */
+    padding: 1.5rem 1rem 1rem 1rem; 
+    
+    /* YENİ: Gradient'i daha yumuşak ve sadece altta yap */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+    
+    color: #ffffff; 
+    z-index: 2; 
+    
+    /* YENİ: Hızlı Ekle paneli için gizlenme efekti */
+    transition: opacity 0.3s ease-out, visibility 0s linear 0.3s;
+    
+    text-align: left; /* Metinleri sola hizala */
+}
+
+.product-info-overlay .product-name-link {
+    display: block; /* Alt alta durmaları için */
+    -webkit-line-clamp: 1; /* YENİ: Tek satıra düşür */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: auto; /* YENİ: Eski min-height'i sıfırla */
+    font-size: 0.9rem; /* Biraz küçültüldü */
+    color: #ffffff !important; 
+    text-decoration: none;
+    font-weight: 500; 
+    line-height: 1.2;
+    margin-bottom: 2px; 
+}
+
+.product-info-overlay .card-subtitle {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #ffffff; 
+    line-height: 1;
+}
+
+/* YENİ KURAL: Kartın üzerine gelindiğinde (beyaz panel göründüğünde), 
+   ürün bilgi katmanını (siyah gradient) gizle */
+.product-list-item .product-card:hover .product-info-overlay {
+    opacity: 0;
+    visibility: hidden;
+    transition-delay: 0s;
+}
+
+/* ================================================= */
+/* === GÜNCELLEME BURADA BİTİYOR === */
+/* ================================================= */
+
+
+.product-list-item .quick-add-section {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background-color: rgba(255, 255, 255, 0.98); padding: 10px 15px; border-top: 1px solid #eee;
+    opacity: 0; visibility: hidden; transform: translateY(100%);
+    transition: opacity 0.3s ease-out, visibility 0s linear 0.3s, transform 0.3s ease-out;
+    z-index: 3; 
+    pointer-events: none;
+}
+.product-list-item .product-card:hover .quick-add-section {
+    opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0s; pointer-events: auto;
+}
+@media (max-width: 767.98px) {
+    .product-list-item .product-name-link {
+        font-size: 0.85rem; 
+        min-height: auto; 
+    }
+    .product-list-item .product-card .card-subtitle {
+        font-size: 0.9rem; 
+    }
+}
+.product-image-container { 
+    overflow: hidden;
+    position: relative; 
+}
+.product-list-item .product-card .card-img-top {
+    transition: transform 0.4s ease; 
+    display: block; 
+    border-radius: 0; 
+}
+.product-list-item .product-card:hover .card-img-top {
+    transform: scale(1.05); 
+}
+/* -------------------------------------------------
+ YENİ EKLENEN KOD: Ana Sayfada Header Hover Etkisi 
+-------------------------------------------------
+*/
+
+/* Ana sayfadayken (.page-home) header'ın üzerine gelindiğinde (:hover),
+  menü okunurluğu için "scrolled" (kaydırılmış) efektini uygula.
+*/
+body.page-home .site-header:hover {
+    background-color: #ffffff; /* Solid beyaz arkaplan */
+    border-bottom: 1px solid #dee2e6; /* Net bir sınır çizgisi */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Hafif gölge */
+}
+
+/* Üzerine gelindiğinde, blurlu yansıma katmanını (.site-header::before)
+  gizle (opacity: 0).
+*/
+body.page-home .site-header:hover::before {
+    opacity: 0;
+}
+/* -------------------------------------------------
+ YENİ EKLENEN KOD: Renk Paletleri (Swatches) 
+-------------------------------------------------
+*/
+
+.color-swatch {
+    /* Mevcut .variant-swatch stillerini (padding, min-width) ezelim */
+    width: 35px;           /* Sabit genişlik */
+    height: 35px;          /* Sabit yükseklik */
+    min-width: 35px;       /* Genişliği zorla */
+    padding: 0;            /* İç boşluğu sıfırla */
+    
+    border-radius: 50%;    /* Daire şeklinde yap */
+    border: 1px solid #dee2e6; /* Beyaz gibi açık renklerin görünmesi için sınır ekle */
+    
+    /* Metin gelse bile gizle (fallback durumu için) */
+    text-indent: -9999px;
+    font-size: 0;
+    line-height: 0;
+}
+
+/* Seçili olan paletin stilini belirginleştir */
+.color-swatch.selected {
+    border-color: #343a40; /* Ana rengimiz (Kömür) ile çerçevele */
+    border-width: 2px;
+    transform: scale(1.1); /* Hafifçe büyüt */
+}/* -------------------------------------------------
+ YENİ EKLENEN KOD: Hızlı Ekleme (Quick Add) Stilleri
+-------------------------------------------------
+*/
+
+/* Zaten var olan .quick-add-section tanımını kullanır */
+
+/* Varyasyonları (renk+beden) tutan ana sarmalayıcı */
+.quick-view-variants-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Renk ve beden satırları arası boşluk */
+    margin-bottom: 0.75rem; /* Butonla arası boşluk */
+}
+
+/* Renk dairelerinin satırı */
+.quick-view-colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem; /* Daireler arası boşluk */
+    justify-content: center;
+}
+
+/* Beden kutularının satırı */
+.quick-view-sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem; /* Kutular arası boşluk */
+    justify-content: center;
+}
+
+/* Hızlı eklemedeki variant-swatch'ları biraz küçültelim */
+.quick-add-section .variant-swatch {
+    font-size: 0.75rem; /* Daha küçük yazı */
+    min-width: 28px;     /* Daha küçük minimum genişlik */
+    padding: 4px 8px;  /* Daha az iç boşluk */
+    font-weight: 500;
+}
+
+/* Hızlı eklemedeki renk dairelerini küçült */
+.quick-add-section .color-swatch {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-width: 1px;
+}
+.quick-add-section .color-swatch.selected {
+    border-width: 2px;
+}
+
+/* ... (mevcut stil dosyanızın sonuna ekleyin) ... */
+
+/* Sol menüdeki 2. seviye (çocuk) alt menüsü */
+.sidebar-submenu {
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+.sidebar-submenu a {
+    color: #6c757d;
+    text-decoration: none;
+    display: block;
+    padding: 0.3rem 0;
+}
+.sidebar-submenu a:hover {
+    color: #212529;
+}
+.sidebar-submenu a.active {
+    font-weight: bold;
+    color: #212529;
+}
+
+/* YENİ EKLENDİ: Sol menüdeki 3. seviye (torun) alt menüsü */
+.sidebar-submenu-inner {
+    padding-left: 1.2rem; /* Çocuklardan biraz daha içeride */
+    margin-top: 0.25rem;
+    list-style: none;
+}
+.sidebar-submenu-inner a {
+    font-size: 0.9em; /* Biraz daha küçük font */
+    color: #6c757d;
+}
+.sidebar-submenu-inner a.active {
+    color: #000;
+    font-weight: bold;
+}

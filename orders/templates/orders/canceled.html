@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container text-center my-5 py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
+            <h1 class="mt-3">Ödeme İptal Edildi</h1>
+            <p class="lead">Siparişiniz iptal edildi veya bir sorun oluştu.</p>
+            <p class="text-muted">Endişelenmeyin, sepetinizdeki ürünler sizi bekliyor. Tekrar deneyebilirsiniz.</p>
+            <a href="{% url 'cart:cart_detail' %}" class="btn btn-secondary mt-3">Sepetime Geri Dön</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

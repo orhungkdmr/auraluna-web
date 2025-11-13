@@ -1,0 +1,24 @@
+Merhaba {{ order.first_name }},
+
+AuraLuna'dan verdiğiniz sipariş için teşekkür ederiz.
+Sipariş Numaranız: #{{ order.id }}
+
+SİPARİŞ ÖZETİ:
+{% for item in order.items.all %}
+- {{ item.product.name }} ({{ item.variant.size.name }} / {{ item.variant.color.name }}) x {{ item.quantity }} = {{ item.get_cost|floatformat:2 }} TL
+{% endfor %}
+
+Ara Toplam: {{ order.get_total_cost|floatformat:2 }} TL
+{% if order.coupon %}
+İndirim ({{ order.coupon.code }}): -{{ order.get_total_cost|floatformat:2 }} TL
+{% endif %}
+Genel Toplam: {{ order.get_total_cost|floatformat:2 }} TL
+
+TESLİMAT ADRESİ:
+{{ order.first_name }} {{ order.last_name }}
+{{ order.address }}
+{{ order.postal_code }} {{ order.city }}
+
+Siparişiniz en kısa sürede hazırlanıp kargoya verilecektir.
+Teşekkürler,
+AuraLuna Ekibi

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %} 
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="mb-4 text-center">Sipariş Takibi</h1>
+            <p class="text-center text-muted mb-4">Siparişinizi takip etmek için sipariş numaranızı ve e-posta adresinizi girin.</p>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-primary">Siparişi Bul</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if order %}
+                <div class="card mt-4 shadow-sm">
+                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Sipariş Detayı: #{{ order.id }}</h5>
+                            <p class="text-muted small mb-0">Tarih: {{ order.created_at|date:"d F Y, H:i" }}</p>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-1">Toplam: {{ order.get_total_cost|floatformat:2 }} TL</h5>
+                            
+                            {% if order.status == 'delivered' %}
+                                <span class="badge bg-success">Siparişiniz Teslim Edildi</span>
+                            {% elif order.status == 'shipped' %}
+                                <span class="badge bg-primary">Siparişiniz Kargoya Verildi</span>
+                            {% elif order.status == 'processing' %}
+                                <span class="badge bg-info text-dark">Siparişiniz Hazırlanıyor</span>
+                            {% elif order.status == 'canceled' %}
+                                <span class="badge bg-danger">Siparişiniz İptal Edildi</span>
+                            {% elif order.paid %}
+                                <span class="badge bg-success">Ödendi (Hazırlanıyor)</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Ödeme Bekleniyor</span>
+                            {% endif %}
+                            </div>
+                    </div>
+
+                     <div class="card-body">
+                        <h6 class="mb-3">Sipariş İçeriği:</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for item in order.items.all %}
+                                <li class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-2 col-md-1">
+                                            {% if item.product.image %}
+                                                <img src="{{ item.product.image.url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                                            {% else %}
+                                                <img src="{% static 'images/placeholder.png' %}" class="img-fluid rounded" alt="Resim Yok">
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-7 col-md-8">
+                                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                                            {% if item.variant %}
+                                                <p class="text-muted small mb-0">
+                                                    {{ item.variant.size.name }} / {{ item.variant.color.name }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-3 col-md-3 text-end">
+                                            <p class="mb-0">{{ item.quantity }} Adet</p>
+                                            <p class="mb-0 fw-bold">{{ item.get_cost|floatformat:2 }} TL</p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if order.status == 'shipped' and order.tracking_number %}
+                    <div class="card-footer bg-light">
+                        <h6 class="mb-1">Kargo Takip Bilgileri:</h6>
+                        <p class="mb-0">
+                            <strong>Kargo Firması:</strong> {{ order.shipping_company|default:"Belirtilmemiş" }}
+                            <br>
+                            <strong>Takip Numarası:</strong> {{ order.tracking_number }}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-footer bg-light">
+                        <h6 class="mb-2">Teslimat Adresi:</h6>
+                        <p class="mb-0">{{ order.first_name }} {{ order.last_name }}</p>
+                        <p class="mb-0">{{ order.address }}</p>
+                        <p class="mb-0">{{ order.postal_code }} {{ order.city }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

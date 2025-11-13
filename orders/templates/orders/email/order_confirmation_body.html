@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sipariş Onayı</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; }
+        .container { width: 90%; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { font-size: 24px; color: #333; }
+        .order-id { font-size: 18px; font-weight: bold; color: #555; }
+        .item-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .item-table th, .item-table td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        .item-table th { background-color: #f8f8f8; }
+        .total-table { width: 100%; margin-top: 20px; }
+        .total-table td { padding: 5px 0; }
+        .total-table .label { font-weight: bold; }
+        .total-table .total-final { font-size: 1.2em; font-weight: bold; }
+        .address-box { margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Merhaba {{ order.first_name }}, siparişiniz için teşekkür ederiz!</h1>
+        <p>AuraLuna'dan verdiğiniz sipariş başarıyla alınmıştır.</p>
+        <p class="order-id">Sipariş Numarası: #{{ order.id }}</p>
+
+        <h2 style="margin-top: 30px;">Sipariş Özeti</h2>
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th>Ürün</th>
+                    <th>Miktar</th>
+                    <th>Birim Fiyat</th>
+                    <th>Toplam</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>
+                        {{ item.product.name }}
+                        <br>
+                        <small style="color: #666;">({{ item.variant.size.name }} / {{ item.variant.color.name }})</small>
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price|floatformat:2 }} TL</td>
+                    <td>{{ item.get_cost|floatformat:2 }} TL</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="total-table">
+            <tr>
+                <td width="70%"></td>
+                <td class="label">Ara Toplam:</td>
+                <td>{{ order.get_total_cost|floatformat:2 }} TL</td>
+            </tr>
+            {% if order.coupon %}
+            <tr style="color: green;">
+                <td width="70%"></td>
+                <td class="label">İndirim ({{ order.coupon.code }}):</td>
+                <td>-{{ order.get_total_cost|floatformat:2 }} TL</td>
+            </tr>
+            {% endif %}
+            <tr class="total-final">
+                <td width="70%"></td>
+                <td class="label">Genel Toplam:</td>
+                <td>{{ order.get_total_cost|floatformat:2 }} TL</td>
+            </tr>
+        </table>
+
+        <div class="address-box">
+            <strong>Teslimat Adresi:</strong><br>
+            {{ order.first_name }} {{ order.last_name }}<br>
+            {{ order.address }}<br>
+            {{ order.postal_code }} {{ order.city }}
+        </div>
+
+        <p style="margin-top: 20px;">Siparişiniz en kısa sürede hazırlanıp kargoya verilecektir.</p>
+        <p>Teşekkürler,<br>AuraLuna Ekibi</p>
+    </div>
+</body>
+</html>

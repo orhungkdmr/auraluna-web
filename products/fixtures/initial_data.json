@@ -1,0 +1,172 @@
+[
+  {
+    "model": "products.color",
+    "pk": 1,
+    "fields": { "name": "Beyaz", "hex_code": "#FFFFFF" }
+  },
+  {
+    "model": "products.color",
+    "pk": 2,
+    "fields": { "name": "Siyah", "hex_code": "#000000" }
+  },
+  {
+    "model": "products.color",
+    "pk": 3,
+    "fields": { "name": "Mavi", "hex_code": "#0d6efd" }
+  },
+  {
+    "model": "products.color",
+    "pk": 4,
+    "fields": { "name": "Kırmızı", "hex_code": "#dc3545" }
+  },
+  {
+    "model": "products.color",
+    "pk": 5,
+    "fields": { "name": "Yeşil", "hex_code": "#198754" }
+  },
+  {
+    "model": "products.color",
+    "pk": 6,
+    "fields": { "name": "Gri", "hex_code": "#6c757d" }
+  },
+  {
+    "model": "products.color",
+    "pk": 7,
+    "fields": { "name": "Haki", "hex_code": "#556B2F" }
+  },
+  {
+    "model": "products.color",
+    "pk": 8,
+    "fields": { "name": "Bej", "hex_code": "#F5F5DC" }
+  },
+  {
+    "model": "products.color",
+    "pk": 9,
+    "fields": { "name": "Lacivert", "hex_code": "#000080" }
+  },
+  {
+    "model": "products.color",
+    "pk": 10,
+    "fields": { "name": "Kahverengi", "hex_code": "#A52A2A" }
+  },
+    {
+    "model": "products.size",
+    "pk": 1,
+    "fields": { "name": "XS", "slug": "s", "order": 0 }
+  },
+  {
+    "model": "products.size",
+    "pk": 1,
+    "fields": { "name": "S", "slug": "s", "order": 1 }
+  },
+  {
+    "model": "products.size",
+    "pk": 2,
+    "fields": { "name": "M", "slug": "m", "order": 2 }
+  },
+  {
+    "model": "products.size",
+    "pk": 3,
+    "fields": { "name": "L", "slug": "l", "order": 3 }
+  },
+  {
+    "model": "products.size",
+    "pk": 4,
+    "fields": { "name": "XL", "slug": "xl", "order": 4 }
+  },
+  {
+    "model": "products.category",
+    "pk": 1,
+    "fields": { "name": "Erkek", "slug": "erkek", "parent": null, "order": 1, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 2,
+    "fields": { "name": "Kadın", "slug": "kadin", "parent": null, "order": 2, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 3,
+    "fields": { "name": "Outlet", "slug": "outlet", "parent": null, "order": 10, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 4,
+    "fields": { "name": "Yeni Gelenler", "slug": "yeni-gelenler", "parent": null, "order": 9, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 5,
+    "fields": { "name": "Giysi", "slug": "erkek-giysi", "parent": 1, "order": 1, "icon_class": "bi-tags-fill" }
+  },
+  {
+    "model": "products.category",
+    "pk": 6,
+    "fields": { "name": "Ayakkabı", "slug": "erkek-ayakkabi", "parent": 1, "order": 2, "icon_class": "bi-footprints" }
+  },
+  {
+    "model": "products.category",
+    "pk": 7,
+    "fields": { "name": "Aksesuar", "slug": "erkek-aksesuar", "parent": 1, "order": 3, "icon_class": "bi-gem" }
+  },
+  {
+    "model": "products.category",
+    "pk": 8,
+    "fields": { "name": "Giysi", "slug": "kadin-giysi", "parent": 2, "order": 1, "icon_class": "bi-tags-fill" }
+  },
+  {
+    "model": "products.category",
+    "pk": 9,
+    "fields": { "name": "Çanta", "slug": "kadin-canta", "parent": 2, "order": 2, "icon_class": "bag-fill" }
+  },
+  {
+    "model": "products.category",
+    "pk": 10,
+    "fields": { "name": "Ayakkabı", "slug": "kadin-ayakkabi", "parent": 2, "order": 3, "icon_class": "bi-footprints" }
+  },
+  {
+    "model": "products.category",
+    "pk": 11,
+    "fields": { "name": "Aksesuar", "slug": "kadin-aksesuar", "parent": 2, "order": 4, "icon_class": "bi-gem" }
+  },
+  {
+    "model": "products.category",
+    "pk": 12,
+    "fields": { "name": "Gömlek", "slug": "erkek-gomlek", "parent": 5, "order": 1, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 13,
+    "fields": { "name": "Pantolon", "slug": "erkek-pantolon", "parent": 5, "order": 2, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 14,
+    "fields": { "name": "Ceket", "slug": "erkek-ceket", "parent": 5, "order": 3, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 15,
+    "fields": { "name": "Elbise", "slug": "kadin-elbise", "parent": 8, "order": 1, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 16,
+    "fields": { "name": "Gömlek", "slug": "kadin-gomlek", "parent": 8, "order": 2, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 17,
+    "fields": { "name": "Pantolon", "slug": "kadin-pantolon", "parent": 8, "order": 3, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 18,
+    "fields": { "name": "Ceket", "slug": "kadin-ceket", "parent": 8, "order": 4, "icon_class": null }
+  },
+  {
+    "model": "products.category",
+    "pk": 19,
+    "fields": { "name": "Etek", "slug": "kadin-etek", "parent": 8, "order": 5, "icon_class": null }
+  }
+]

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Hesap Bilgilerim</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row">
+                <!-- YENİ: Profil Resmi Bölümü -->
+                <div class="col-md-3 text-center mb-3 mb-md-0">
+                    <img src="{{ profile.profile_picture.url }}" 
+                         alt="Profil Resmi" 
+                         class="img-thumbnail rounded-circle" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                
+                <!-- YENİ: Bilgi Bölümü (Düzenlendi) -->
+                <div class="col-md-9">
+                    <h5 class="card-title">Kişisel Bilgiler</h5>
+                    <p><strong>Kullanıcı Adı:</strong> {{ user.username }}</p>
+                    <p><strong>Ad:</strong> {{ user.first_name|default:"Belirtilmemiş" }}</p>
+                    <p><strong>Soyad:</strong> {{ user.last_name|default:"Belirtilmemiş" }}</p>
+                    <p><strong>E-posta:</strong> {{ user.email }}</p>
+                    <p><strong>Telefon Numarası:</strong> {{ profile.phone_number|default:"Belirtilmemiş" }}</p>
+                    
+                    <h6 class="mt-4">Adres Bilgileri</h6>
+                    <p><strong>Şehir:</strong> {{ profile.city|default:"Belirtilmemiş" }}</p>
+                    <p><strong>İlçe:</strong> {{ profile.district|default:"Belirtilmemiş" }}</p>
+                    <p><strong>Posta Kodu:</strong> {{ profile.postal_code|default:"Belirtilmemiş" }}</p>
+                    <p><strong>Açık Adres:</strong> {{ profile.address_detail|default:"Belirtilmemiş"|linebreaksbr }}</p> 
+                    
+                    <a href="{% url 'accounts:account_update' %}" class="btn btn-primary mt-2">Bilgileri Düzenle</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">Güvenlik</h5>
+            <p>Şifrenizi düzenli aralıklarla güncellemeniz önerilir.</p>
+            <a href="{% url 'accounts:password_change' %}" class="btn btn-warning">Şifre Değiştir</a>
+        </div>
+    </div>
+
+    <div class="mt-4">
+         <a href="{% url 'pages:home' %}" class="btn btn-outline-secondary">&larr; Ana Sayfaya Dön</a>
+    </div>
+</div>
+{% endblock content %}

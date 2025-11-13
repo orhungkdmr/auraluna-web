@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Sipariş Geçmişim</h1>
+
+    {% if orders %}
+        {% for order in orders %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">Sipariş No: #{{ order.id }}</h5>
+                        <p class="text-muted small mb-0">Tarih: {{ order.created_at|date:"d F Y, H:i" }}</p>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="mb-1">Toplam: {{ order.get_total_cost|floatformat:2 }} TL</h5>
+                        
+                        {% if order.status == 'delivered' %}
+                            <span class="badge bg-success">Teslim Edildi</span>
+                        {% elif order.status == 'shipped' %}
+                            <span class="badge bg-primary">Kargoya Verildi</span>
+                        {% elif order.status == 'processing' %}
+                            <span class="badge bg-info text-dark">Hazırlanıyor</span>
+                        {% elif order.status == 'canceled' %}
+                            <span class="badge bg-danger">İptal Edildi</span>
+                        {% elif order.paid %}
+                            <span class="badge bg-success">Ödendi (Hazırlanıyor)</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Ödeme Bekleniyor</span>
+                        {% endif %}
+                        </div>
+                </div>
+                
+                <div class="card-body">
+                    <h6 class="mb-3">Sipariş İçeriği:</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for item in order.items.all %}
+                            <li class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col-2 col-md-1">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'images/placeholder.png' %}" class="img-fluid rounded" alt="Resim Yok">
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-7 col-md-8">
+                                        <h6 class="mb-0">
+                                            <a href="{{ item.product.get_absolute_url }}" class="text-dark text-decoration-none">
+                                                {{ item.product.name }}
+                                            </a>
+                                        </h6>
+                                        {% if item.variant %}
+                                            <p class="text-muted small mb-0">
+                                                Varyasyon: {{ item.variant.size.name }} / {{ item.variant.color.name }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-3 col-md-3 text-end">
+                                        <p class="mb-0">Miktar: <strong>{{ item.quantity }}</strong></p>
+                                        <p class="mb-0 fw-bold">{{ item.get_cost|floatformat:2 }} TL</p>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                {% if order.status == 'shipped' and order.tracking_number %}
+                <div class="card-footer bg-white">
+                    <h6 class="mb-1">Kargo Takip Bilgileri:</h6>
+                    <p class="mb-0">
+                        <strong>Kargo Firması:</strong> {{ order.shipping_company|default:"Belirtilmemiş" }}
+                        <br>
+                        <strong>Takip Numarası:</strong> {{ order.tracking_number }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            Henüz hiç sipariş vermediniz.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

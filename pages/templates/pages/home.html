@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block body_class %}page-home{% endblock %}
+
+{% block content %}
+<div class="swiper hero-swiper">
+        <div class="swiper-wrapper">
+            {% for slide in slides %}
+                {# Koşullara '.url' kontrolü eklendi #}
+                {% if slide.slide_type == 'image' and slide.image and slide.image.url %}
+                    <div class="swiper-slide hero-slide" style="--slide-bg-image: url({{ slide.image.url }});">
+                        <div class="hero-overlay"></div>
+                        <div class="hero-content text-center text-white">
+                            <h1 class="display-3">{{ slide.title }}</h1>
+                            {% if slide.subtitle %}<p class="lead my-3">{{ slide.subtitle }}</p>{% endif %}
+                            <a href="{{ slide.button_link }}" class="btn btn-primary btn-lg">{{ slide.button_text }}</a>
+                        </div>
+                    </div>
+                {% elif slide.slide_type == 'video' and slide.video and slide.video.url %}
+                    <div class="swiper-slide hero-slide video-slide">
+                        <video class="hero-video-background" autoplay muted loop playsinline>
+                            <source src="{{ slide.video.url }}" type="video/mp4">
+                            Tarayıcınız video etiketini desteklemiyor.
+                        </video>
+                        <div class="hero-overlay"></div>
+                        <div class="hero-content text-center text-white">
+                            <h1 class="display-3">{{ slide.title }}</h1>
+                            {% if slide.subtitle %}<p class="lead my-3">{{ slide.subtitle }}</p>{% endif %}
+                            <a href="{{ slide.button_link }}" class="btn btn-primary btn-lg">{{ slide.button_text }}</a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+</div>
+<div class="container my-5 py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <img src="{% static 'images/brand-story.png' %}" class="img-fluid rounded shadow-sm **brand-logo-no-bg**" alt="AuraLuna Keten Kumaş">
+        </div>
+        <div class="col-md-6 ps-md-5">
+            <h2 class="display-5">Doğadan Gelen İlham</h2>
+            <p class="lead text-muted">AuraLuna, ketenin saf ve nefes alan dokusunu modern tasarımlarla buluşturur.</p>
+            <p>Her bir parçamız, sadece bir giysi değil, aynı zamanda bir yaşam tarzı sunar: Sade, bilinçli ve zamansız. Kaliteye ve doğallığa olan tutkumuzla, gardırobunuzda yıllarca keyifle yer alacak, hikayesi olan kıyafetler üretiyoruz.</p>
+            <a href="{% url 'pages:about' %}" class="btn btn-outline-dark mt-3">Hikayemizin Tamamı</a>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Yeni Ürünler</h2>
+    <div class="swiper product-swiper">
+        <div class="swiper-wrapper">
+            {% for product in new_products %}
+            <div class="swiper-slide">
+                <div class="card h-100">
+                    <div class="card-overlay-actions">
+                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-slug="{{ product.slug }}">
+                            <i class="bi bi-eye"></i> Hızlı Bakış
+                        </button>
+                    </div>
+                    {% if user.is_authenticated %}<a href="{% url 'products:toggle_favourite' product.slug %}" class="favourite-icon js-toggle-favourite">{% if user in product.favourited_by.all %}<i class="bi bi-heart-fill"></i>{% else %}<i class="bi bi-heart"></i>{% endif %}</a>{% endif %}
+                    {% if product.image %}<a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"></a>{% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.name }}</a></h5>
+                        {% with first_variant=product.variants.first %}
+                            {% if first_variant %}<h6 class="card-subtitle mb-2 text-muted">{{ first_variant.price }} TL</h6>{% endif %}
+                        {% endwith %}
+                        <div class="mt-auto"><a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary w-100">Seçenekleri Gör</a></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <a href="{% url 'products:product_list_by_category' 'erkek' %}" class="category-showcase-card">
+                <div class="card bg-dark text-white">
+                    <img src="{% static 'images/erkek-kategori.jpg' %}" class="card-img" alt="Erkek Koleksiyonu">
+                    <div class="card-img-overlay d-flex flex-column justify-content-center align-items-center">
+                        <h2 class="card-title">Erkek Koleksiyonu</h2>
+                        <p class="card-text">Stil ve Konfor Bir Arada</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 mb-4">
+            <a href="{% url 'products:product_list_by_category' 'kadin' %}" class="category-showcase-card">
+                <div class="card bg-dark text-white">
+                    <img src="{% static 'images/kadin-kategori.jpg' %}" class="card-img" alt="Kadın Koleksiyonu">
+                    <div class="card-img-overlay d-flex flex-column justify-content-center align-items-center">
+                        <h2 class="card-title">Kadın Koleksiyonu</h2>
+                        <p class="card-text">Doğallığın Zarafeti</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="container my-5 py-4 info-icons-section bg-white rounded shadow-sm"> 
+    <div class="row text-center">
+        
+        <div class="col-md-3 mb-4 mb-md-0"> 
+            <div class="info-icon-wrapper mb-3"> 
+                <i class="bi bi-truck fs-1"></i> 
+            </div>
+            <h5 class="fw-bold">ÜCRETSİZ KARGO</h5>
+            <p class="text-muted small">Belirli tutar ve üzeri alışverişlerinizde ücretsiz hızlı teslimat.</p> 
+        </div>
+
+        <div class="col-md-3 mb-4 mb-md-0">
+             <div class="info-icon-wrapper mb-3">
+                <i class="bi bi-arrow-repeat fs-1"></i> {# Veya bi-bag-check #}
+            </div>
+            <h5 class="fw-bold">KOLAY İADE</h5>
+            <p class="text-muted small">Satın aldığınız ürünleri kolayca iade edebilirsiniz.</p> 
+        </div>
+
+        <div class="col-md-3 mb-4 mb-md-0">
+             <div class="info-icon-wrapper mb-3">
+                 <i class="bi bi-shop fs-1"></i> {# Veya bi-building #}
+            </div>
+            <h5 class="fw-bold">MAĞAZADAN DEĞİŞİM</h5>
+            <p class="text-muted small">Online alışverişlerinizi mağazalarımızdan değiştirebilirsiniz.</p> 
+        </div>
+
+        <div class="col-md-3">
+             <div class="info-icon-wrapper mb-3">
+                <i class="bi bi-credit-card fs-1"></i> 
+            </div>
+            <h5 class="fw-bold">GÜVENLİ ÖDEME</h5>
+            <p class="text-muted small">Farklı ödeme yöntemleri ile güvenli, hızlı ve kolay ödeme yapabilirsiniz.</p> 
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascript %}
+{% endblock javascript %}

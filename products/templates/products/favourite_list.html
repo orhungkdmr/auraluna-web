@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Favorilerim</h1>
+    <div class="row">
+        {% for product in favourite_products %}
+            <div class="col-lg-3 col-md-4 mb-4">
+                <div class="card h-100">
+                    <a href="{% url 'products:toggle_favourite' product.slug %}" class="favourite-icon js-toggle-favourite">
+                        <i class="bi bi-heart-fill"></i> </a>
+                    
+                    {% if product.image %}
+                        <a href="{{ product.get_absolute_url }}">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        </a>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">
+                            <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.name }}</a>
+                        </h5>
+                        {% with first_variant=product.variants.first %}
+                            {% if first_variant %}
+                                <h6 class="card-subtitle mb-2 text-muted">{{ first_variant.price }} TL</h6>
+                            {% endif %}
+                        {% endwith %}
+                        <div class="mt-auto">
+                           <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary w-100">Seçenekleri Gör</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col">
+                <div class="alert alert-info">
+                    Henüz favorilerinize ürün eklemediniz. Beğendiğiniz ürünlerin yanındaki kalp ikonuna tıklayarak onları buraya ekleyebilirsiniz.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Giriş Yap</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary mt-3">Giriş Yap</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        {# YENİ: Şifremi Unuttum Linki #}
+                        <small class="text-muted d-block mb-1"><a href="{% url 'password_reset' %}">Şifrenizi mi unuttunuz?</a></small>
+                        <small class="text-muted">Hesabınız yok mu? <a href="{% url 'accounts:signup' %}">Hemen Kayıt Olun!</a></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
