@@ -124,7 +124,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.ManifestStaticFilesStorage'
 # YENİ: Cloudinary ayarları
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') # .env'den okur
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# YENİ SATIR: Cloudinary'nin statik dosyaları yönetmesini engelle
+CLOUDINARY_STORAGE_MANAGE_STATICFILES = False
 MEDIA_URL = '/media/' # Cloudinary bu URL'i otomatik olarak yönlendirir
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
