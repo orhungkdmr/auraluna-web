@@ -120,7 +120,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # YENİ: Whitenoise'un dosyaları sunmasını sağlayan ayar
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.ManifestStaticFilesStorage'
 # YENİ: Cloudinary ayarları
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') # .env'den okur
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
