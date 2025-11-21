@@ -33,7 +33,7 @@
         <meta property="twitter:description" content="Doğallığın zarafetiyle buluştuğu eşsiz koleksiyonları keşfedin.">
         <meta property="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}">
     {% endblock %}
-    </head>
+</head>
 <body class="{% block body_class %}{% endblock %}">
 
     {% if active_announcement_banners %}
@@ -59,6 +59,12 @@
     <header class="site-header">
         <div class="header-top container-fluid">
             
+            <div class="d-lg-none d-flex align-items-center justify-content-start w-25">
+                <button class="btn btn-link text-dark p-0 me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavOffcanvas" aria-controls="mobileNavOffcanvas">
+                    <i class="bi bi-list fs-1"></i>
+                </button>
+            </div>
+            
             <div class="header-search position-relative"> 
                 <form action="{% url 'products:product_list' %}" method="get" role="search" class="search-form" autocomplete="off">
                     <div class="search-input-container"> 
@@ -74,13 +80,11 @@
                     <img src="{% static 'images/logo.png' %}" alt="AuraLuna Logo" class="navbar-logo">
                 </a>
             </div>
-            <div class="header-icons">
-                {% include 'partials/right_nav.html' %}
+            <div class="header-icons d-none d-lg-flex"> {% include 'partials/right_nav.html' %}
             </div>
         </div>
 
-        <nav class="header-main-nav">
-            <ul class="nav justify-content-center main-navbar">
+        <nav class="header-main-nav d-none d-lg-block"> <ul class="nav justify-content-center main-navbar">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'pages:home' %}">Ana Sayfa</a>
                 </li>
@@ -131,6 +135,36 @@
             </ul>
         </nav>
     </header>
+    
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="mobileNavOffcanvas" aria-labelledby="mobileNavOffcanvasLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="mobileNavOffcanvasLabel">Menü</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
+        </div>
+        <div class="offcanvas-body">
+             <ul class="list-unstyled">
+                <li><a class="text-dark fw-bold d-block py-2" href="{% url 'pages:home' %}">ANA SAYFA</a></li>
+                {% for top_category in structured_nav_categories %}
+                    <li class="border-bottom mb-2">
+                        <a class="text-dark fw-bold d-block py-2" href="{{ top_category.url }}">{{ top_category.name }}</a>
+                        {% if top_category.children %}
+                            <ul class="list-unstyled ps-3 pb-2">
+                            {% for child in top_category.children %}
+                                <li class="py-1">
+                                    <a class="text-muted small" href="{{ child.url }}">{{ child.name }}</a>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <hr>
+            <ul class="list-unstyled pt-2">
+                {% include 'partials/right_nav.html' %}
+            </ul>
+        </div>
+    </div>
     
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
     

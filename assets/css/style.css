@@ -931,3 +931,64 @@ a[data-bs-toggle="collapse"]:not(.collapsed) i {
     transform: scale(1.3);
     border-color: #333;
 }
+
+/* --- MOBİL OPTİMİZASYON: HOVER ETKİLERİNİ DEVRE DIŞI BIRAKMA --- */
+
+/* 992px'den (Büyük Tablet / Masaüstü) küçük ekranlar için */
+@media (max-width: 991.98px) {
+    
+    /* Ürün kartının üzerindeki gölge ve parlaklık efektlerini kaldır */
+    .product-list-item .product-card:hover .card-img-top {
+        filter: none !important; 
+        transform: none !important;
+    }
+
+    /* Ürün resmi konteynerinin büyüme efektini kaldır */
+    .product-list-item .product-card:hover .product-image-container .card-img-top {
+        transform: none !important;
+    }
+}
+/* --- MOBİL HEADER FIX (992px altı) --- */
+@media (max-width: 991.98px) {
+    
+    /* 1. HEADER TOP FIX: Elemanları sarmala */
+    .site-header .header-top {
+        flex-wrap: wrap;
+        padding: 10px 15px;
+    }
+
+    /* 2. ANA SÜTUNLARI TAM GENİŞLİĞE ÇEK VE ORTALANDIR */
+    .site-header .header-search, 
+    .site-header .header-logo, 
+    .site-header .header-icons {
+        width: 100%; 
+        text-align: center;
+        margin-bottom: 0 !important;
+        padding: 0 10px;
+    }
+
+    /* 3. LOGO YUVARLAĞINI KÜÇÜLT */
+    .header-logo img {
+        height: 70px; /* Logoyu küçült */
+        padding: 5px 0;
+    }
+
+    /* 4. SIRALAMA (Search ve İkonları LOGO'nun altına taşı) */
+    .site-header .header-logo {
+        order: 1; 
+    }
+    .site-header .header-icons {
+        order: 2; 
+        justify-content: center !important;
+        display: none; /* İkonları hamburger menüye taşıyacağımız için şimdilik gizleyelim */
+    }
+    .site-header .header-search { 
+        order: 3; /* Aramayı en alta taşı */
+        margin-top: 10px; 
+    }
+
+    /* 5. ANA NAVİGASYON (ALTTTAKİ MENÜYÜ GİZLE) */
+    .site-header .header-main-nav {
+        display: none !important; 
+    }
+}

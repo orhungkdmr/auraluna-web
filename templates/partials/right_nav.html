@@ -5,11 +5,11 @@
         {# --- Giriş Yapmış Kullanıcı --- #}
         <ul class="navbar-nav flex-row align-items-center">
             
-            {# Hesabım Dropdown (İkon + Metin) #}
+            {# Hesabım Dropdown #}
             <li class="nav-item dropdown icon-text-link">
                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarAccountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Hesabım">
-                    <i class="bi bi-person me-1 fs-5"></i> {# İkon #}
-                    <span>Hesabım</span> {# Metin #}
+                    <i class="bi bi-person me-1 fs-5"></i> 
+                    <span class="d-none d-lg-inline">Hesabım</span> {# Sadece masaüstünde metni göster #}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarAccountDropdown">
                     <li class="dropdown-header">Merhaba, {{ user.username }}</li>
@@ -25,28 +25,28 @@
                 </ul>
             </li>
 
-            {# Favorilerim (İkon + Metin) #}
-            <li class="nav-item ms-3 icon-text-link"> {# ms-3 ile boşluk, Yeni sınıf eklendi #}
+            {# Favorilerim #}
+            <li class="nav-item ms-3 icon-text-link d-none d-lg-block"> {# Mobildeki menüye taşıdık #}
                 <a class="nav-link d-flex align-items-center" href="{% url 'products:favourite_list' %}" title="Favorilerim">
-                    <i class="bi bi-heart me-1 fs-5"></i> {# İkon (Boş kalp, dolu kalp favori sayfasında görünsün) #}
-                    <span>Favorilerim</span> {# Metin #}
+                    <i class="bi bi-heart me-1 fs-5"></i> 
+                    <span class="d-none d-lg-inline">Favorilerim</span>
                 </a>
             </li>
-            <li class="nav-item icon-text-link"> {# Yeni sınıf eklendi #}
+            <li class="nav-item icon-text-link d-none d-lg-block"> {# Mobildeki menüye taşıdık #}
              <a class="nav-link d-flex align-items-center" href="{% url 'orders:order_tracking' %}" title="Sipariş Takibi">
-                <i class="bi bi-truck me-1 fs-5"></i> {# İkon #}
-                <span>Sipariş Takibi</span> {# Metin #}
+                <i class="bi bi-truck me-1 fs-5"></i> 
+                <span class="d-none d-lg-inline">Sipariş Takibi</span>
              </a>
              </li>
 
-            {# Sepetim (İkon + Metin + Counter) #}
-            <li class="nav-item ms-3 icon-text-link"> {# ms-3 ile boşluk, Yeni sınıf eklendi #}
-                <a class="nav-link position-relative d-flex align-items-center" href="{% url 'cart:cart_detail' %}" title="Sepetim">
-                    <i class="bi bi-cart me-1 fs-5"></i> {# İkon #}
-                    <span>Sepetim</span> {# Metin #}
+            {# Sepetim #}
+            <li class="nav-item ms-3 icon-text-link">
+                <a class="nav-link position-relative d-flex align-items-center" href="#" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart" title="Sepetim">
+                    <i class="bi bi-cart me-1 fs-5"></i> 
+                    <span class="d-none d-lg-inline">Sepetim</span> 
                     <span id="cart-counter"
                           class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                          style="display: {% if cart|length > 0 %}inline-block{% else %}none{% endif %}; font-size: 0.6em; padding: .3em .5em;"> {# Stil ayarlandı #}
+                          style="display: {% if cart|length > 0 %}inline-block{% else %}none{% endif %}; font-size: 0.6em; padding: .3em .5em;">
                           {{ cart|length }}
                     </span>
                 </a>
@@ -58,36 +58,35 @@
         {# --- Giriş Yapmamış Kullanıcı --- #}
         <ul class="navbar-nav flex-row align-items-center">
 
-            {# Giriş Yap (İkon + Metin) #}
-            <li class="nav-item icon-text-link"> {# Yeni sınıf eklendi #}
-                <a class="nav-link d-flex align-items-center" href="{% url 'login' %}" title="Giriş Yap">
-                    <i class="bi bi-person me-1 fs-5"></i> {# İkon #}
-                    <span>Giriş Yap</span> {# Metin #}
+            {# Giriş Yap Dropdown (sadece ikon görünüyor, metin gizlendi) #}
+            <li class="nav-item dropdown icon-text-link">
+                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarAccountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Giriş Yap">
+                    <i class="bi bi-person me-1 fs-5"></i> 
+                    <span class="d-none d-lg-inline">Giriş Yap</span>
                 </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarAccountDropdown">
+                    <li><a class="dropdown-item" href="{% url 'login' %}">Giriş Yap</a></li>
+                    <li><a class="dropdown-item" href="{% url 'accounts:signup' %}">Kayıt Ol</a></li>
+                    <li><a class="dropdown-item" href="{% url 'orders:order_tracking' %}">Sipariş Takibi</a></li>
+                </ul>
             </li>
 
-             {# Favorilerim (Giriş yapmamış kullanıcı için de gösterelim, tıklayınca login'e yönlendirebilir) #}
-            <li class="nav-item ms-3 icon-text-link"> {# ms-3 ile boşluk, Yeni sınıf eklendi #}
-                <a class="nav-link d-flex align-items-center" href="{% url 'login' %}?next={% url 'products:favourite_list' %}" title="Favorilerim"> {# Login'e yönlendir #}
-                    <i class="bi bi-heart me-1 fs-5"></i> {# İkon #}
-                    <span>Favorilerim</span> {# Metin #}
+             {# Favorilerim #}
+            <li class="nav-item ms-3 icon-text-link d-none d-lg-block">
+                <a class="nav-link d-flex align-items-center" href="{% url 'login' %}?next={% url 'products:favourite_list' %}" title="Favorilerim"> 
+                    <i class="bi bi-heart me-1 fs-5"></i> 
+                    <span class="d-none d-lg-inline">Favorilerim</span>
                 </a>
             </li>
-            <li class="nav-item icon-text-link"> {# Yeni sınıf eklendi #}
-             <a class="nav-link d-flex align-items-center" href="{% url 'orders:order_tracking' %}" title="Sipariş Takibi">
-                <i class="bi bi-truck me-1 fs-5"></i> {# İkon #}
-                <span>Sipariş Takibi</span> {# Metin #}
-                </a>
-            </li>
-
-            {# Sepetim (İkon + Metin + Counter) #}
-            <li class="nav-item ms-3 icon-text-link"> {# ms-3 ile boşluk, Yeni sınıf eklendi #}
-                <a class="nav-link position-relative d-flex align-items-center" href="{% url 'cart:cart_detail' %}" title="Sepetim">
-                    <i class="bi bi-cart me-1 fs-5"></i> {# İkon #}
-                    <span>Sepetim</span> {# Metin #}
+            
+            {# Sepetim #}
+            <li class="nav-item ms-3 icon-text-link">
+                <a class="nav-link position-relative d-flex align-items-center" href="#" role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart" title="Sepetim">
+                    <i class="bi bi-cart me-1 fs-5"></i> 
+                    <span class="d-none d-lg-inline">Sepetim</span> 
                      <span id="cart-counter"
                           class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                          style="display: {% if cart|length > 0 %}inline-block{% else %}none{% endif %}; font-size: 0.6em; padding: .3em .5em;"> {# Stil ayarlandı #}
+                          style="display: {% if cart|length > 0 %}inline-block{% else %}none{% endif %}; font-size: 0.6em; padding: .3em .5em;">
                           {{ cart|length }}
                     </span>
                 </a>

@@ -671,18 +671,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // 5. ÜRÜN LİSTE SAYFASI (GRID, RENK DOTS)
     // ==================================================
 
-    // --- RENK HOVER EFEKTİ ---
+// --- LİSTE SAYFASI: RENK HOVER EFEKTİ (DOKUNMATİK UYUMLULUĞU) ---
     const colorDots = document.querySelectorAll('.color-dot-list');
     colorDots.forEach(dot => {
-        dot.addEventListener('mouseenter', function() {
-            const imgEl = document.getElementById(this.dataset.targetImg);
-            if (imgEl && this.dataset.imgSrc) imgEl.src = this.dataset.imgSrc;
-        });
-        dot.addEventListener('mouseleave', function() {
-            const imgEl = document.getElementById(this.dataset.targetImg);
-            if (imgEl && imgEl.dataset.originalSrc) imgEl.src = imgEl.dataset.originalSrc;
-        });
-    });
+        
+        // Touchscreen olmayan cihazlarda (fare olan cihazlarda) çalıştır
+        if (!('ontouchstart' in window)) {
+            
+            // Mouse Enter (Üzerine gelince)
+            dot.addEventListener('mouseenter', function() {
+                const imgEl = document.getElementById(this.dataset.targetImg);
+                if (imgEl && this.dataset.imgSrc) imgEl.src = this.dataset.imgSrc;
+            });
+            
+            // Mouse Leave (Üzerinden çekilince)
+            dot.addEventListener('mouseleave', function() {
+                const imgEl = document.getElementById(this.dataset.targetImg);
+                if (imgEl && imgEl.dataset.originalSrc) imgEl.src = imgEl.dataset.originalSrc;
+            });
+        }
 
     // --- HIZLI EKLE PANELİ (Listeleme Sayfası) ---
     const productCards = document.querySelectorAll('.product-list-item .product-card');
