@@ -138,7 +138,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Ana dizinde artık 'static' klasörü olmadığı için aşağıdaki satırı YORUM SATIRI yaptık.
 # STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static') ]
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'pages', 'assets'),
+    os.path.join(BASE_DIR, 'assets'),
 ]
 # ---------------------------
 # --- CANLI SUNUCU AYARLARI (DEBUG=False ise) ---
