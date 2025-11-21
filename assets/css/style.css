@@ -992,3 +992,20 @@ a[data-bs-toggle="collapse"]:not(.collapsed) i {
         display: none !important; 
     }
 }
+/* --- MOBİL SLIDER YÜKSEKLİĞİ FIX (100vh sorununu çözer) --- */
+@media (max-width: 767.98px) {
+    .hero-swiper {
+        /* Mobil ekranın %65'i kadar yükseklik veriyoruz */
+        height: 65vh !important; 
+        /* Minumum yüksekliği garanti ediyoruz */
+        min-height: 400px; 
+    }
+
+    /* Video slaytların da bu boyuta uyduğundan emin ol */
+    .hero-slide video {
+        min-height: 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
