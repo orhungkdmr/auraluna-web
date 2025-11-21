@@ -121,16 +121,14 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'ULTnxyuXxs_EJYOUlVX2--vsf_E' # <--- BURAYI DOLDUR
 }
 
-# --- DJANGO 5 İÇİN DEPOLAMA AYARLARI (İSİM HATASI DÜZELTİLDİ) ---
+# --- DJANGO 5 İÇİN DEPOLAMA AYARLARI (DOĞRU İSİM KULLANIMI) ---
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # YAZIM HATASI DÜZELTİLDİ: WhiteNoiseStorage yerine doğru sınıf adı:
+        # En basit ve doğru isim. Sıkıştırmayı şimdilik atlıyoruz.
         "BACKEND": "whitenoise.storage.WhiteNoiseStaticFilesStorage", 
-        # NOT: Eğer CompressedStaticFilesStorage hala hata verirse, aşağıdaki basit olanı kullan:
-        # "BACKEND": "whitenoise.storage.WhiteNoiseStaticFilesStorage",
     },
 }
 
