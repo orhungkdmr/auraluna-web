@@ -121,14 +121,14 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'ULTnxyuXxs_EJYOUlVX2--vsf_E' # <--- BURAYI DOLDUR
 }
 
-# --- DJANGO 5 İÇİN DEPOLAMA AYARLARI (DOĞRU İSİM KULLANIMI) ---
+# 2. Django 5 İçin Yeni Depolama Yapısı (STORAGES)
+# Eski DEFAULT_FILE_STORAGE yerine bu kullanılır.
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # En basit ve doğru isim. Sıkıştırmayı şimdilik atlıyoruz.
-        "BACKEND": "whitenoise.storage.WhiteNoiseStaticFilesStorage", 
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
@@ -143,14 +143,6 @@ cloudinary.config(
 
 print("--- MOD: DJANGO 5 STORAGES AYARLARI AKTİF (CLOUDINARY) ---")
 
-# ==================================================
-# === STATİK BULUCULAR (WHITENOISE/CLOUDINARY FIX) ===
-# ==================================================
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    # Diğer Finder'lar (örn. Compressors) buraya eklenebilir
-]
 
 # ==================================================
 # === DİĞER AYARLAR ===
