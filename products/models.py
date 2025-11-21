@@ -62,40 +62,93 @@ class Size(models.Model):
 # ==================================================
 
 
+# ...
+
 class Product(models.Model):
-    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE, verbose_name="Ana Kategori") # YENİ: verbose_name eklendi
-    
-    # ============================================
-    # === YENİ ALAN ===
-    # ============================================
+    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE, verbose_name="Ana Kategori")
     secondary_categories = models.ManyToManyField(
         Category, 
         related_name='secondary_products', 
         blank=True, 
         verbose_name="İkincil Kategoriler (Etiketler)"
     )
-    # ============================================
-    
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField()
-    image = models.ImageField(upload_to='products/', null=True, blank=True, help_text="Ana kapak fotoğrafı")
+    
+    # GÜNCELLEME: blank=True, null=True eklendi (Zorunluluk kalktı)
+    image = models.ImageField(upload_to='products/', null=True, blank=True, help_text="Ana kapak fotoğrafı (Opsiyonel)")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     favourited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='favourite_products', blank=True)
     
     class Meta:
         ordering = ('-created_at',)
+    
     def __str__(self): return self.name
+    
     def get_absolute_url(self): return reverse('products:product_detail', args=[self.slug])
+
+    # YENİ EKLENEN YARDIMCI FONKSİYON
+    @property
+    def get_main_image(self):
+        """
+        Eğer ana resim (image) varsa onu döner.
+        Yoksa, galerideki (ProductImage) ilk resmi döner.
+        O da yoksa None döner.
+        """
+        if self.image:
+            return self.image
+        
+        # Galeriden ilk resmi al
+        first_gallery_image = self.images.first()
+        if first_gallery_image:
+            return first_gallery_image.image
+            
+        return None
+
+    def get_color_variant_data(self):
+        """
+        Ürün kartı için renk seçeneklerini ve o renge ait resmi hazırlar.
+        """
+        data = []
+        variants = self.variants.select_related('color').all()
+        seen_colors = set()
+        
+        for v in variants:
+            if v.color and v.color.id not in seen_colors:
+                # 1. Bu renge özel atanmış resim var mı?
+                color_image = self.images.filter(color=v.color).first()
+                
+                # 2. Resim URL'ini belirle
+                if color_image:
+                    image_url = color_image.image.url
+                elif self.image:
+                    image_url = self.image.url # Ana resim varsa onu kullan
+                else:
+                    # Hiçbir resim yoksa placeholder
+                    image_url = '/static/images/placeholder.png' 
+                
+                data.append({
+                    'color_id': v.color.id,
+                    'color_name': v.color.name,
+                    'hex_code': v.color.hex_code,
+                    'image_url': image_url
+                })
+                seen_colors.add(v.color.id)
+        return data
+
+        
 class ProductImage(models.Model):
-    # ... (Mevcut ProductImage modelinizde değişiklik yok) ...
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
+    # YENİ EKLENDİ: Resmi bir renge bağlamak için
+    color = models.ForeignKey('Color', on_delete=models.SET_NULL, null=True, blank=True, related_name='product_images', verbose_name="Renk (Opsiyonel)")
     image = models.ImageField(upload_to='products/gallery/')
-    alt_text = models.CharField(max_length=200, blank=True, help_text="Resim yüklenemezse görünecek alternatif metin.")
-    def __str__(self): return f"{self.product.name} - Resim {self.id}"
-
-
+    alt_text = models.CharField(max_length=200, blank=True)
+    
+    def __str__(self):
+        return f"{self.product.name} - {self.color.name if self.color else 'Genel'} - {self.id}"
 # ==================================================
 # === GÜNCELLENEN ProductVariant MODELİ ===
 # ==================================================
@@ -151,3 +204,17 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.rating} Puan)"
+
+class StockNotification(models.Model):
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='stock_notifications', verbose_name="Varyasyon")
+    email = models.EmailField(verbose_name="E-posta Adresi")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Talep Tarihi")
+    is_notified = models.BooleanField(default=False, verbose_name="Bildirim Gönderildi mi?")
+
+    class Meta:
+        verbose_name = "Stok Bildirimi"
+        verbose_name_plural = "Stok Bildirimleri"
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f"{self.email} - {self.variant}"

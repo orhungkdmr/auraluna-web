@@ -1,49 +1,41 @@
 from pathlib import Path
 import os
-# YENİ: .env dosyasını okumak için importlar
 import dj_database_url
 from dotenv import load_dotenv
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# YENİ: .env dosyasını yükle
+# .env dosyasını yükle
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # ==================================================
-# === GÜVENLİK AYARLARI GÜNCELLENDİ ===
+# === GÜVENLİK AYARLARI ===
 # ==================================================
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-varsayilan-anahtar-degistir')
 
-# ESKİ (SİLİN): SECRET_KEY = 'django-insecure-kp5!!&ztm%ah(oma3!dp1irv^j#0@zl-zmbc)ounb+#9t=q#!@'
-# YENİ:
-SECRET_KEY = os.environ.get('SECRET_KEY')
-
-# ESKİ (SİLİN): DEBUG = True
-# YENİ: .env'den al (True/False)
+# DEBUG ayarı: .env dosyasında 'True' yazıyorsa True, yoksa False kabul eder.
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# ESKİ (SİLİN): ALLOWED_HOSTS = []
-# YENİ: .env'den al (virgülle ayrılmış listeyi oku)
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+
+
 # ==================================================
-
-
+# === UYGULAMALAR (APPS) ===
+# ==================================================
 INSTALLED_APPS = [
+    # 3. Parti - Cloudinary (En üste koymak bazen gerekebilir ama burada güvenli)
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     
-    # === GÜNCELLEME BURADA ===
-    # 1. Cloudinary Storage (staticfiles'dan önce)
-    'cloudinary_storage', 
+    # Whitenoise (staticfiles'dan önce olması önerilmez, middleware halleder)
+    'django.contrib.staticfiles',
     
-    # 2. Staticfiles (SADECE BİR KEZ BURADA)
-    'django.contrib.staticfiles', 
-    
-    # 3. Cloudinary
-    'cloudinary', 
-    # === GÜNCELLEME SONU ===
+    'cloudinary', # Cloudinary ana uygulaması
 
     # Kendi Uygulamalarımız
     'products',
@@ -56,12 +48,12 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'django_filters',
-  
+    'anymail', 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Whitenoise burada olmalı
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -83,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Proje özel processörler
                 'cart.context_processors.cart',
                 'cart.context_processors.main_categories',
                 'pages.context_processors.site_settings', 
@@ -94,71 +87,96 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'auraluna_project.wsgi.application'
 
-# ==================================================
-# === VERİTABANI AYARI GÜNCELLENDİ ===
-# ==================================================
 
+# ==================================================
+# === VERİTABANI AYARI (HİBRİT) ===
+# ==================================================
+# Eğer .env dosyasında DATABASE_URL varsa onu kullanır (PostgreSQL vb.)
+# Yoksa otomatik olarak yerel db.sqlite3 dosyasına düşer.
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
+    )
 }
+
+
 # ==================================================
-
-
+# === ŞİFRE DOĞRULAMA ===
+# ==================================================
 AUTH_PASSWORD_VALIDATORS = [
-    # ... (Aynı kalır) ...
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+
+# ==================================================
+# === ULUSLARARASILAŞTIRMA ===
+# ==================================================
 LANGUAGE_CODE = 'tr'
 TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# YENİ: collectstatic komutunun dosyaları toplayacağı yer
+# ==================================================
+# === STATİK VE MEDYA AYARLARI (AKILLI HİBRİT) ===
+# ==================================================
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# YENİ: Whitenoise'un dosyaları sunmasını sağlayan ayar
-STATICFILES_STORAGE = 'whitenoise.storage.ManifestStaticFilesStorage'
-# YENİ: Cloudinary ayarları
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') # .env'den okur
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-# YENİ SATIR: Cloudinary'nin statik dosyaları yönetmesini engelle
-CLOUDINARY_STORAGE_MANAGE_STATICFILES = False
-MEDIA_URL = '/media/' # Cloudinary bu URL'i otomatik olarak yönlendirir
+# --- CANLI SUNUCU AYARLARI (DEBUG=False) ---
+if not DEBUG:
+    # Statik dosyalar için Whitenoise
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    
+    # Medya (Resimler) için Cloudinary
+    CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') 
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    
+    # Cloudinary statik dosyaları yönetmesin, onu Whitenoise yapıyor
+    CLOUDINARY_STORAGE_MANAGE_STATICFILES = False 
+    
+    MEDIA_URL = '/media/' 
+
+# --- YEREL GELİŞTİRME AYARLARI (DEBUG=True) ---
+else:
+    # Bilgisayarında resimleri klasöre kaydet
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    
+    # Statik dosyalar için varsayılan Django davranışı yeterli
+    # (Otomatik olarak STATICFILES_DIRS'den okur)
 
 
+# ==================================================
+# === DİĞER AYARLAR ===
+# ==================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 CART_SESSION_ID = 'cart'
+
+# Login/Logout yönlendirmeleri
 LOGIN_REDIRECT_URL = "pages:home"
 LOGOUT_REDIRECT_URL = "pages:home"
+LOGIN_URL = "login" # Login required dekoratörü için
 
+# Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# ==================================================
-# === E-POSTA VE STRIPE AYARLARI GÜNCELLENDİ ===
-# ==================================================
-# ==================================================
-# === E-POSTA AYARLARI (.env'den okuma) ===
-# ==================================================
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND') # .env'den 'django.core.mail.backends.smtp.EmailBackend' okur
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL') # .env'den 'orhungokdemir@gmail.com' okur
-
-# YENİ: SMTP ayarlarını .env'den okuma
+# E-posta Ayarları (SMTP)
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend') # Env yoksa konsola basar
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == 'True'
-EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL') == 'True'
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-
-# ==================================================
-
+# Stripe Ödeme Ayarları
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_API_VERSION = '2024-06-20'
-# ==================================================

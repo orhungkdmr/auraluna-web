@@ -2,61 +2,58 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from .models import Product, Category
 from django.core.paginator import Paginator
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Min, Avg, Sum, Count # Hesaplama fonksiyonları
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .filters import ProductFilter 
 from .models import Review
 from .forms import ReviewForm
-from orders.models import OrderItem # Satın alma kontrolü için
+from orders.models import OrderItem 
+from .forms import StockNotificationForm
+from .models import StockNotification, ProductVariant # ProductVariant eklendi
 
 # ==================================================
-# === YENİ YARDIMCI FONKSİYON ===
+# === YARDIMCI FONKSİYON ===
 # ==================================================
 def get_all_descendant_categories(category):
-    """
-    Verilen bir kategorinin kendisi de dahil olmak üzere
-    tüm alt kategorilerini (torunlar vb.) özyinelemeli (recursive)
-    olarak bulan bir fonksiyon.
-    """
-    descendants = [category] # Kategoriye doğrudan atanan ürünleri de dahil et
-    
-    # Modelinizde 'children' olarak related_name tanımlamıştık
+    descendants = [category]
     for child in category.children.all():
         descendants.extend(get_all_descendant_categories(child))
-        
     return descendants
-# ==================================================
-
 
 # ==================================================
 # === GÜNCELLENEN product_list FONKSİYONU ===
 # ==================================================
 def product_list(request, category_slug=None):
-    current_category = None
-    categories = Category.objects.all()
-    product_list = Product.objects.filter(variants__isnull=False).distinct().order_by('-created_at')
-    product_list = product_list.prefetch_related('images', 'variants')
+    # 1. Tüm Ana Kategorileri Al (Filtre ağacı için)
+    # prefetch_related ile alt kategorileri de peşin çekiyoruz ki veritabanını yormasın
+    main_categories = Category.objects.filter(parent=None).prefetch_related('children__children')
     
+    current_category = None
+    
+    # 2. Temel Ürün Listesi
+    product_list = Product.objects.filter(variants__isnull=False).distinct()
+    
+    # 3. Eğer URL'den kategori geldiyse (/products/erkek/ gibi)
+    # Bunu başlangıç filtresi olarak ayarla ama kullanıcı değiştirebilsin
     if category_slug:
         current_category = get_object_or_404(Category, slug=category_slug)
+        # URL'den gelen kategori sayfayı daraltır ama filtre nesnesi (checkbox) bunu yönetecek.
+        # Ancak "Breadcrumb" veya başlık için current_category'yi tutuyoruz.
         
-        # 1. Tıklanan kategori ve TÜM alt kategorilerini (torunlar dahil) al.
+        # NOT: Eğer kullanıcı URL'den geldiyse, o kategorinin ürünlerini getir.
+        # Ancak filtre formunda da o kutucuğun işaretli olmasını şablonda halledeceğiz.
         categories_to_filter = get_all_descendant_categories(current_category)
         
-        # ============================================
-        # === YENİ FİLTRELEME MANTIĞI ===
-        # ============================================
-        # Ürünleri, Ana Kategorisi VEYA İkincil Kategorisi
-        # bu listede olanlara göre filtrele.
-        product_list = product_list.filter(
-            Q(category__in=categories_to_filter) | 
-            Q(secondary_categories__in=categories_to_filter)
-        ).distinct() # Tekrar distinct() kullanmak önemlidir
-        # ============================================
+        # Eğer GET parametrelerinde 'category' yoksa, URL'den geleni uygula
+        if 'category' not in request.GET:
+            product_list = product_list.filter(
+                Q(category__in=categories_to_filter) | 
+                Q(secondary_categories__in=categories_to_filter)
+            ).distinct()
 
-    # --- Arama Mantığı (Değişiklik Yok) ---
+    # 4. Arama Mantığı
     query = request.GET.get('q')
     if query:
         product_list = product_list.filter(
@@ -64,24 +61,45 @@ def product_list(request, category_slug=None):
             Q(description__icontains=query) | 
             Q(category__name__icontains=query) | 
             Q(variants__sku__icontains=query) | 
-            Q(variants__color__name__icontains=query) | 
-            Q(variants__size__name__icontains=query) 
+            Q(variants__color__name__icontains=query) 
         ).distinct()
-    # --- Arama Mantığı Sonu ---
 
-    # --- Filtreleme Adımı (Değişiklik Yok) ---
+    # 5. Filtreleme (django-filters)
+    # Burası checkbox'lardan gelen veriyi işler
     product_filter = ProductFilter(request.GET, queryset=product_list)
-    
-    paginator = Paginator(product_filter.qs, 6) 
+    product_list = product_filter.qs
+
+    # 6. Sıralama ve Hesaplama (Annotation)
+    product_list = product_list.annotate(
+        min_price=Min('variants__price'),
+        avg_rating=Avg('reviews__rating'),
+        total_sold=Sum('order_items__quantity', filter=Q(order_items__order__paid=True)) 
+    )
+
+    sort_by = request.GET.get('sort', 'newest')
+    if sort_by == 'price_asc':
+        product_list = product_list.order_by('min_price')
+    elif sort_by == 'price_desc':
+        product_list = product_list.order_by('-min_price')
+    elif sort_by == 'rating':
+        product_list = product_list.order_by('-avg_rating')
+    elif sort_by == 'bestseller':
+        product_list = product_list.order_by('-total_sold')
+    else:
+        product_list = product_list.order_by('-created_at')
+
+    # 7. Sayfalama
+    paginator = Paginator(product_list, 12) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
     context = {
         'page_obj': page_obj,
         'query': query,
-        'categories': categories,
+        'main_categories': main_categories, # Ağaç yapısı için
         'current_category': current_category,
-        'product_filter': product_filter, 
+        'product_filter': product_filter,
+        'current_sort': sort_by, 
     }
     return render(request, 'products/product_list.html', context)
 
@@ -89,7 +107,6 @@ def product_list(request, category_slug=None):
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
     
-    # Mevcut varyant ve resim kodları (Değişiklik yok)
     variants_queryset = product.variants.select_related('color', 'size').all()
     variants_list = []
     for v in variants_queryset:
@@ -102,31 +119,24 @@ def product_detail(request, slug):
     product_images = product.images.all()
     similar_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
 
-    # --- YENİ DEĞERLENDİRME MANTIĞI ---
     reviews = product.reviews.all()
     review_form = ReviewForm()
-    user_can_review = False # Varsayılan
-    user_has_reviewed = False # Varsayılan
+    user_can_review = False 
+    user_has_reviewed = False 
 
     if request.user.is_authenticated:
-        # 1. Kullanıcı bu ürünü daha önce değerlendirmiş mi?
         if reviews.filter(user=request.user).exists():
             user_has_reviewed = True
-        
-        # 2. Değerlendirmemişse, satın almış mı diye kontrol et
         else:
             has_purchased = OrderItem.objects.filter(
                 order__user=request.user, 
                 product=product, 
                 order__paid=True
             ).exists()
-            
             if has_purchased:
                 user_can_review = True
 
-    # --- YENİ POST İŞLEMCİSİ ---
     if request.method == 'POST' and user_can_review:
-        # Formu sadece yorum yapabilenler (satın alanlar) gönderebilir
         form = ReviewForm(request.POST)
         if form.is_valid():
             try:
@@ -136,20 +146,17 @@ def product_detail(request, slug):
                 new_review.save()
                 messages.success(request, "Değerlendirmeniz için teşekkür ederiz!")
                 return redirect(product.get_absolute_url())
-            except: # unique_together hatasını yakala (örn: çift tıklama)
+            except: 
                 messages.error(request, "Bu ürünü zaten değerlendirdiniz.")
         else:
-            messages.error(request, "Formda hatalar var. Lütfen puan seçtiğinizden emin olun.")
-            review_form = form # Hatalı formu tekrar göster
-    # --- DEĞERLENDİRME MANTIĞI SONU ---
+            messages.error(request, "Formda hatalar var.")
+            review_form = form 
 
     context = {
         'product': product,
         'variants': variants_list,
         'product_images': product_images,
         'similar_products': similar_products,
-        
-        # YENİ CONTEXT DEĞİŞKENLERİ
         'reviews': reviews,
         'review_form': review_form,
         'user_can_review': user_can_review,
@@ -158,7 +165,6 @@ def product_detail(request, slug):
     return render(request, 'products/product_detail.html', context)
 
 def product_quick_view(request, slug):
-    # ... (Bu fonksiyonda değişiklik yok) ...
     product = get_object_or_404(Product, slug=slug)
     variants_queryset = product.variants.select_related('color', 'size').all()
     variants_list = []
@@ -179,10 +185,8 @@ def product_quick_view(request, slug):
     }
     return JsonResponse(data)
 
-
 @login_required
 def toggle_favourite(request, product_slug):
-    # ... (Bu fonksiyonda değişiklik yok) ...
     product = get_object_or_404(Product, slug=product_slug)
     is_favourited = False
     message = ""
@@ -201,10 +205,58 @@ def toggle_favourite(request, product_slug):
     messages.success(request, message)
     return redirect(request.META.get('HTTP_REFERER', 'products:product_list'))
 
-
 @login_required
 def favourite_list(request):
-    # ... (Bu fonksiyonda değişiklik yok) ...
     favourite_products = request.user.favourite_products.all()
     context = {'favourite_products': favourite_products}
     return render(request, 'products/favourite_list.html', context)
+
+def stock_notification_request(request):
+    """
+    AJAX ile gelen stok bildirimi talebini kaydeder.
+    """
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        variant_id = request.POST.get('variant_id')
+        email = request.POST.get('email')
+        
+        if not variant_id or not email:
+            return JsonResponse({'status': 'error', 'message': 'Eksik bilgi.'}, status=400)
+            
+        variant = get_object_or_404(ProductVariant, id=variant_id)
+        
+        # Zaten kayıt var mı kontrol et
+        if StockNotification.objects.filter(variant=variant, email=email, is_notified=False).exists():
+            return JsonResponse({'status': 'warning', 'message': 'Bu ürün için zaten talebiniz var.'})
+            
+        StockNotification.objects.create(variant=variant, email=email)
+        return JsonResponse({'status': 'ok', 'message': 'Talebiniz alındı. Stok gelince haber vereceğiz!'})
+        
+    return JsonResponse({'status': 'error', 'message': 'Geçersiz istek.'}, status=400)
+
+def live_search(request):
+    """
+    AJAX ile anlık arama sonuçlarını döndürür.
+    """
+    query = request.GET.get('q', '')
+    results = []
+    
+    if len(query) > 2: # En az 3 karakter yazılınca ara
+        products = Product.objects.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query) |
+            Q(variants__sku__icontains=query)
+        ).distinct()[:5] # En fazla 5 sonuç göster
+        
+        for product in products:
+            # İlk varyantın fiyatını al
+            first_variant = product.variants.first()
+            price = first_variant.price if first_variant else 0
+            
+            results.append({
+                'name': product.name,
+                'url': product.get_absolute_url(),
+                'image': product.image.url if product.image else '/static/images/placeholder.png',
+                'price': price
+            })
+            
+    return JsonResponse({'results': results})

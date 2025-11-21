@@ -1,47 +1,64 @@
 {% extends "base.html" %}
 {% load static %}
 
-
 {% block body_class %}page-home{% endblock %}
 
 {% block content %}
 <div class="swiper hero-swiper">
-        <div class="swiper-wrapper">
-            {% for slide in slides %}
-                {# Koşullara '.url' kontrolü eklendi #}
-                {% if slide.slide_type == 'image' and slide.image and slide.image.url %}
-                    <div class="swiper-slide hero-slide" style="--slide-bg-image: url({{ slide.image.url }});">
-                        <div class="hero-overlay"></div>
-                        <div class="hero-content text-center text-white">
-                            <h1 class="display-3">{{ slide.title }}</h1>
-                            {% if slide.subtitle %}<p class="lead my-3">{{ slide.subtitle }}</p>{% endif %}
-                            <a href="{{ slide.button_link }}" class="btn btn-primary btn-lg">{{ slide.button_text }}</a>
-                        </div>
+    <div class="swiper-wrapper">
+        {% for slide in slides %}
+            {% if slide.slide_type == 'image' and slide.image and slide.image.url %}
+                <div class="swiper-slide hero-slide" style="--slide-bg-image: url({{ slide.image.url }});">
+                    
+                    {% if slide.button_link %}
+                        <a href="{{ slide.button_link }}" class="slide-click-area" title="{{ slide.title }}"></a>
+                    {% endif %}
+
+                    <div class="hero-overlay"></div>
+                    
+                    <div class="hero-content text-center text-white">
+                        {% if slide.title %}
+                            <h1 class="display-3 fw-bold">{{ slide.title }}</h1>
+                        {% endif %}
+                        
+                        {% if slide.subtitle %}
+                            <p class="lead my-3">{{ slide.subtitle }}</p>
+                        {% endif %}
                     </div>
-                {% elif slide.slide_type == 'video' and slide.video and slide.video.url %}
-                    <div class="swiper-slide hero-slide video-slide">
-                        <video class="hero-video-background" autoplay muted loop playsinline>
-                            <source src="{{ slide.video.url }}" type="video/mp4">
-                            Tarayıcınız video etiketini desteklemiyor.
-                        </video>
-                        <div class="hero-overlay"></div>
-                        <div class="hero-content text-center text-white">
-                            <h1 class="display-3">{{ slide.title }}</h1>
-                            {% if slide.subtitle %}<p class="lead my-3">{{ slide.subtitle }}</p>{% endif %}
-                            <a href="{{ slide.button_link }}" class="btn btn-primary btn-lg">{{ slide.button_text }}</a>
-                        </div>
+                </div>
+
+            {% elif slide.slide_type == 'video' and slide.video and slide.video.url %}
+                <div class="swiper-slide hero-slide video-slide">
+                    {% if slide.button_link %}
+                        <a href="{{ slide.button_link }}" class="slide-click-area" title="{{ slide.title }}"></a>
+                    {% endif %}
+
+                    <video class="hero-video-background" autoplay muted loop playsinline>
+                        <source src="{{ slide.video.url }}" type="video/mp4">
+                    </video>
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content text-center text-white">
+                        {% if slide.title %}
+                            <h1 class="display-3 fw-bold">{{ slide.title }}</h1>
+                        {% endif %}
+                        
+                        {% if slide.subtitle %}
+                            <p class="lead my-3">{{ slide.subtitle }}</p>
+                        {% endif %}
                     </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
     <div class="swiper-pagination"></div>
     <div class="swiper-button-next"></div>
     <div class="swiper-button-prev"></div>
 </div>
+
 <div class="container my-5 py-5">
     <div class="row align-items-center">
         <div class="col-md-6">
-            <img src="{% static 'images/brand-story.png' %}" class="img-fluid rounded shadow-sm **brand-logo-no-bg**" alt="AuraLuna Keten Kumaş">
+            <img src="{% static 'images/brand-story.png' %}" class="img-fluid rounded shadow-sm brand-logo-no-bg" alt="AuraLuna Keten Kumaş">
         </div>
         <div class="col-md-6 ps-md-5">
             <h2 class="display-5">Doğadan Gelen İlham</h2>
@@ -58,23 +75,45 @@
         <div class="swiper-wrapper">
             {% for product in new_products %}
             <div class="swiper-slide">
-                <div class="card h-100">
-                    <div class="card-overlay-actions">
-                        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-slug="{{ product.slug }}">
-                            <i class="bi bi-eye"></i> Hızlı Bakış
-                        </button>
-                    </div>
-                    {% if user.is_authenticated %}<a href="{% url 'products:toggle_favourite' product.slug %}" class="favourite-icon js-toggle-favourite">{% if user in product.favourited_by.all %}<i class="bi bi-heart-fill"></i>{% else %}<i class="bi bi-heart"></i>{% endif %}</a>{% endif %}
-                    {% if product.image %}<a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"></a>{% endif %}
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title"><a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.name }}</a></h5>
-                        {% with first_variant=product.variants.first %}
-                            {% if first_variant %}<h6 class="card-subtitle mb-2 text-muted">{{ first_variant.price }} TL</h6>{% endif %}
-                        {% endwith %}
-                        <div class="mt-auto"><a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary w-100">Seçenekleri Gör</a></div>
+                
+                <div class="product-list-item h-100"> 
+                    <div class="card h-100 product-card border-0 shadow-sm" data-product-slug="{{ product.slug }}">
+                        
+                        <div class="product-image-container position-relative">
+                            
+                            {% if product.image %}
+                                <a href="{{ product.get_absolute_url }}">
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                                </a>
+                            {% endif %}
+
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'products:toggle_favourite' product.slug %}" class="favourite-icon js-toggle-favourite">
+                                    {% if user in product.favourited_by.all %}
+                                        <i class="bi bi-heart-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart"></i>
+                                    {% endif %}
+                                </a>
+                            {% endif %}
+
+                            <div class="product-info-overlay">
+                                <h5 class="card-title fs-6 mb-0">
+                                    <a href="{{ product.get_absolute_url }}" class="text-decoration-none product-name-link">{{ product.name }}</a>
+                                </h5>
+                                {% with first_variant=product.variants.first %}
+                                    {% if first_variant %}
+                                        <h6 class="card-subtitle fw-bold fs-6">{{ first_variant.price }} TL</h6>
+                                    {% else %}
+                                        <h6 class="card-subtitle fw-bold fs-6">-</h6>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+
+                        </div> 
                     </div>
                 </div>
-            </div>
+                </div>
             {% endfor %}
         </div>
         <div class="swiper-button-next"></div>
@@ -108,6 +147,7 @@
         </div>
     </div>
 </div>
+
 <div class="container my-5 py-4 info-icons-section bg-white rounded shadow-sm"> 
     <div class="row text-center">
         
@@ -121,7 +161,7 @@
 
         <div class="col-md-3 mb-4 mb-md-0">
              <div class="info-icon-wrapper mb-3">
-                <i class="bi bi-arrow-repeat fs-1"></i> {# Veya bi-bag-check #}
+                <i class="bi bi-arrow-repeat fs-1"></i> 
             </div>
             <h5 class="fw-bold">KOLAY İADE</h5>
             <p class="text-muted small">Satın aldığınız ürünleri kolayca iade edebilirsiniz.</p> 
@@ -129,7 +169,7 @@
 
         <div class="col-md-3 mb-4 mb-md-0">
              <div class="info-icon-wrapper mb-3">
-                 <i class="bi bi-shop fs-1"></i> {# Veya bi-building #}
+                 <i class="bi bi-shop fs-1"></i> 
             </div>
             <h5 class="fw-bold">MAĞAZADAN DEĞİŞİM</h5>
             <p class="text-muted small">Online alışverişlerinizi mağazalarımızdan değiştirebilirsiniz.</p> 
@@ -145,8 +185,4 @@
 
     </div>
 </div>
-
 {% endblock content %}
-
-{% block javascript %}
-{% endblock javascript %}

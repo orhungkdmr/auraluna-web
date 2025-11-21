@@ -1,84 +1,67 @@
 /* static/css/style.css */
 
-/* --- Genel Stiller ve Yazı Tipleri (GÜNCELLENDİ) --- */
+/* --- Genel Stiller ve Yazı Tipleri --- */
 body {
     font-family: 'Lato', sans-serif;
-    background-color: #ffffff; /* Zemin Rengi: Beyaz */
-    color: #343a40; /* Ana Metin Rengi: Kömür */
+    background-color: #ffffff;
+    color: #343a40;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 700; /* Başlıklar tok görünsün */
-    color: #343a40; /* Ana Başlık Rengi: Kömür */
+    font-weight: 700;
+    color: #343a40;
 }
 
-/* YENİ: Link Renkleri */
 a {
-    color: #343a40; /* Ana Metin Rengi: Kömür */
+    color: #343a40;
     text-decoration: none;
 }
 a:hover {
-    color: #D4AF37; /* Vurgu: Altın */
+    color: #D4AF37;
 }
 
-.main-content { padding-top: 100px; } /* Header'ın altına içerik gelmemesi için */
+.main-content { padding-top: 100px; }
 
-/* --- YENİ HEADER ve NAVİGASYON YAPISI (GÜNCELLENDİ) --- */
+/* --- HEADER ve NAVİGASYON --- */
 .site-header {
-    /* background-color: #ffffff; -> Başlangıçta şeffaf olacak */
-    /* border-bottom: 1px solid #dee2e6; -> Başlangıçta yarı şeffaf olacak */
     position: sticky;
     top: 0;
     z-index: 1020;
-    
-    /* YENİ: Geçişler ve varsayılan durum */
-    background-color: transparent; /* Başlangıçta şeffaf */
-    border-bottom: 1px solid rgba(222, 226, 230, 0.3); /* Başlangıçta yarı şeffaf border */
+    background-color: transparent;
+    border-bottom: 1px solid rgba(222, 226, 230, 0.3);
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* YENİ: Blurlu yansıma katmanı */
 .site-header::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1; /* İçeriğin (logo, linkler) arkasına gönder */
-    
-    /* JS tarafından ayarlanan --header-bg-image değişkenini kullan */
+    z-index: -1;
     background-image: var(--header-bg-image);
     background-size: cover;
     background-position: center;
-    
-    /* Blur ve estetik ayarlar */
     filter: blur(10px) brightness(0.9);
     -webkit-filter: blur(10px) brightness(0.9);
-    
-    /* Slayt geçişlerinde yumuşaklık */
     opacity: 0;
     transition: opacity 0.5s ease;
 }
 
-/* YENİ: Sadece ana sayfada (header slider'ın üzerindeyken) yansımayı göster */
 body.page-home .site-header::before {
     opacity: 1;
 }
 
-/* YENİ: Sayfayı aşağı kaydırınca veya ana sayfa dışında */
 .site-header.scrolled,
 body:not(.page-home) .site-header {
-    background-color: #ffffff; /* Solid beyaz arkaplan */
-    border-bottom: 1px solid #dee2e6; /* Solid border */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Hafif gölge */
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* YENİ: Scroll edilince veya başka sayfada yansımayı gizle */
 .site-header.scrolled::before,
 body:not(.page-home) .site-header::before {
     opacity: 0;
 }
-
-/* --- (Header'ın diğer stilleri... .header-top, .header-main-nav vb. aynı kalıyor) --- */
 
 .header-top {
     display: flex;
@@ -87,29 +70,25 @@ body:not(.page-home) .site-header::before {
     padding: 10px 20px;
 }
 .header-search { width: 33.33%; }
-/* ... (header-search stilleriniz) ... */
 .header-logo { width: 33.33%; text-align: center; }
 .header-logo img { height: 100px; width: auto; }
 .header-icons {
     width: 33.33%;
     display: flex;
-    justify-content: flex-end; /* İçeriği en sağa yasla */
+    justify-content: flex-end;
 }
 .header-icons .nav-link { color: #212529 !important; }
 .header-icons .navbar-nav { flex-direction: row !important; }
 .header-main-nav { border-top: 1px solid #dee2e6; padding: 5px 0; }
 .header-main-nav .nav-link { color: #212529 !important; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
-.header-main-nav .nav-link:hover { color: #D4AF37 !important; } /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+.header-main-nav .nav-link:hover { color: #D4AF37 !important; }
 
-
-/* --- Ana Sayfa Karuseli (GÜNCELLENDİ) --- */
+/* --- Ana Sayfa Karuseli --- */
 .hero-swiper { 
     width: 100%; 
-    /* YENİ: Yüksekliği tam ekran yap (header zaten üzerinde) */
     height: 100vh; 
 }
 .hero-slide { 
-    /* YENİ: JS'nin bulabilmesi için bu değişkeni kullanacağız */
     background-image: var(--slide-bg-image); 
     background-size: cover; 
     background-position: center; 
@@ -119,7 +98,6 @@ body:not(.page-home) .site-header::before {
     justify-content: center; 
 }
 
-/* YENİ: Video slaytları için stil */
 .hero-slide video {
     position: absolute;
     top: 50%;
@@ -129,28 +107,21 @@ body:not(.page-home) .site-header::before {
     min-height: 100%;
     width: auto;
     height: auto;
-    z-index: -1; /* İçeriğin arkasında */
+    z-index: -1;
 }
 
 .hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.4); }
 .hero-content { position: relative; z-index: 2; color: white; }
 
-/* ... (Diğer tüm stilleriniz .btn, .favourite-icon, .card, .network-style-menu vb. buradan sonra devam ediyor) ... */
-
-/* --- Ana Sayfada Main Content Padding'ini Sıfırla (GÜNCELLENDİ) --- */
-/* Bu kuralın .main-content tanımından SONRA gelmesi önemlidir */
 body.page-home main.main-content {
-    padding-top: 0 !important; /* Ana sayfada üst boşluğu kaldırır */
+    padding-top: 0 !important;
 }
-
-/* ... (style.css dosyanızın geri kalanı) ... */
 
 .btn { transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease; border-radius: 50px; padding: 10px 20px; font-weight: bold; }
 .btn:hover { transform: scale(1.05); }
 
-/* --- YENİ BUTON RENKLERİ --- */
 .btn-primary,
-.btn-success, /* Kayıt Ol, Güncelle */
+.btn-success,
 .btn-signup {
     background-color: #343a40;
     border-color: #343a40;
@@ -159,23 +130,21 @@ body.page-home main.main-content {
 .btn-primary:hover,
 .btn-success:hover,
 .btn-signup:hover {
-    background-color: #000000; /* Daha Koyu Kömür */
+    background-color: #000000;
     border-color: #000000;
     color: #ffffff;
 }
 
-/* Butonlar - Vurgu (Altın) */
-.btn-warning { /* Şifre Değiştir, Sıfırlama Linki */
+.btn-warning { 
     background-color: #D4AF37;
     border-color: #D4AF37;
-    color: #000000; /* Altın zemin üzerine Siyah metin */
+    color: #000000;
 }
 .btn-warning:hover {
-    background-color: #c09e32; /* Altın (Koyu) */
+    background-color: #c09e32;
     border-color: #c09e32;
     color: #000000;
 }
-/* --- YENİ BUTON RENKLERİ SONU --- */
 
 .favourite-icon { position: absolute; top: 10px; right: 10px; z-index: 10; font-size: 1.5rem; color: #dc3545; text-decoration: none; transition: transform 0.2s ease; }
 .favourite-icon:hover { transform: scale(1.2); }
@@ -183,18 +152,32 @@ body.page-home main.main-content {
 .card:hover .card-overlay-actions { opacity: 1; visibility: visible; }
 .card:hover .card-img-top { filter: brightness(0.6); transition: filter 0.3s ease; }
 
-/* .btn-signup stili yukarıda birleştirildi */
-
 .variant-swatch { border: 2px solid #343a40; background-color: #ffffff; color: #343a40; padding: 8px 15px; cursor: pointer; border-radius: 4px; transition: all 0.2s ease; user-select: none; min-width: 50px; text-align: center; font-weight: 500; }
 .variant-swatch:hover { background-color: #f8f9fa; transform: translateY(-2px); }
 .variant-swatch.selected {
-    border-color: #343a40; /* GÜNCELLENDİ: Kömür */
-    background-color: #343a40; /* GÜNCELLENDİ: Kömür */
-    color: #ffffff; /* GÜNCELLENDİ: Beyaz */
+    border-color: #343a40;
+    background-color: #343a40;
+    color: #ffffff;
     font-weight: bold;
     transform: translateY(-2px);
 }
-.variant-swatch.disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; text-decoration: line-through; border-color: #dee2e6; transform: none; }
+/* Tükendi ama Tıklanabilir Durum */
+.variant-swatch.out-of-stock { 
+    background-color: #fdfdfd; 
+    color: #aaa; 
+    cursor: pointer; /* Tıklanabilir olduğunu gösterir */
+    border: 1px dashed #ccc; /* Kesik çizgi ile stok yok hissi */
+    transform: none; 
+    position: relative;
+}
+
+/* Tükendi ama Seçili Durum (Bildirim formu açıkken) */
+.variant-swatch.out-of-stock.selected {
+    background-color: #fff0f0; /* Hafif kırmızı arka plan */
+    border: 2px solid #dc3545; /* Kırmızı çerçeve */
+    color: #dc3545;
+    font-weight: bold;
+}
 .quantity-selector { display: flex; }
 .quantity-selector .form-control { width: 60px; text-align: center; border-radius: 0; }
 .quantity-selector .btn { width: 40px; padding: 8px 12px; border-radius: 0; }
@@ -209,7 +192,7 @@ body.page-home main.main-content {
 .category-showcase-card:hover .card-img { transform: scale(1.05); }
 .category-showcase-card .card-img-overlay { background-color: rgba(0, 0, 0, 0.4); }
 .sidebar-main-link { font-weight: bold; color: #212529; text-decoration: none; display: block; padding: 0.5rem 0; font-size: 1.1rem; }
-.sidebar-main-link.active { color: #D4AF37; } /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+.sidebar-main-link.active { color: #D4AF37; }
 .accordion-item { border: none; background-color: transparent; }
 .accordion-header { display: flex; align-items: center; border-bottom: 1px solid #dee2e6; }
 .accordion-header .sidebar-main-link { flex-grow: 1; }
@@ -227,9 +210,9 @@ body.page-home main.main-content {
     background-color: transparent !important;
 }
 .announcement-banner.announcement-swiper {
-    background-color: #D4AF37; /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
-    color: #000000; /* GÜNCELLENDİ: Siyah */
-    height: 40px; /* Sabit yükseklik */
+    background-color: #D4AF37;
+    color: #000000;
+    height: 40px;
     overflow: hidden;
 }
 .announcement-swiper .announcement-slide {
@@ -241,12 +224,12 @@ body.page-home main.main-content {
     font-weight: 500;
 }
 .announcement-banner .announcement-link {
-    color: #000000; /* GÜNCELLENDİ: Siyah */
+    color: #000000;
     text-decoration: none;
     transition: opacity 0.2s ease;
 }
 .announcement-banner .announcement-link:hover {
-    color: #343a40; /* GÜNCELLENDİ: Kömür */
+    color: #343a40;
     text-decoration: underline;
 }
 .main-navbar .nav-item {
@@ -372,7 +355,7 @@ body.page-home main.main-content {
     text-decoration: none;
 }
 .mega-submenu .dropdown-item:hover {
-    color: #D4AF37; /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+    color: #D4AF37;
     background-color: transparent;
     text-decoration: underline;
 }
@@ -387,8 +370,6 @@ body.page-home main.main-content {
 }
 .hero-swiper {
     margin-top: 0 !important;
-}
-.info-icons-section {
 }
 .info-icon-wrapper {
     display: inline-flex; 
@@ -442,10 +423,6 @@ body.page-home main.main-content {
     color: #888; 
     opacity: 1;
 }
-.search-input.form-control::-webkit-input-placeholder { color: #888; }
-.search-input.form-control::-moz-placeholder { color: #888; opacity: 1; }
-.search-input.form-control:-ms-input-placeholder { color: #888; }
-.search-input.form-control::-ms-input-placeholder { color: #888; }
 .search-icon {
     position: absolute;
     right: 15px; 
@@ -476,7 +453,7 @@ body.page-home main.main-content {
 }
 .icon-text-link .nav-link:hover,
 .icon-text-link .nav-link:hover i {
-    color: #D4AF37 !important; /* GÜNCELLENDİ: Vurgu Rengi (Altın) */
+    color: #D4AF37 !important;
 }
 .icon-text-link .nav-link #cart-counter {
    font-size: 0.65em; 
@@ -535,37 +512,25 @@ body.page-home main.main-content {
     opacity: 1; visibility: visible;
 }
 
-/* ================================================= */
-/* === GÜNCELLEME BURADA BAŞLIYOR (Ürün Bilgi Alanı) === */
-/* ================================================= */
-
 .product-info-overlay {
     position: absolute; 
     bottom: 0; left: 0; width: 100%;
-    
-    /* YENİ: Padding'i sola ve alta odakla */
     padding: 1.5rem 1rem 1rem 1rem; 
-    
-    /* YENİ: Gradient'i daha yumuşak ve sadece altta yap */
     background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
-    
     color: #ffffff; 
     z-index: 2; 
-    
-    /* YENİ: Hızlı Ekle paneli için gizlenme efekti */
     transition: opacity 0.3s ease-out, visibility 0s linear 0.3s;
-    
-    text-align: left; /* Metinleri sola hizala */
+    text-align: left;
 }
 
 .product-info-overlay .product-name-link {
-    display: block; /* Alt alta durmaları için */
-    -webkit-line-clamp: 1; /* YENİ: Tek satıra düşür */
+    display: block;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-height: auto; /* YENİ: Eski min-height'i sıfırla */
-    font-size: 0.9rem; /* Biraz küçültüldü */
+    min-height: auto;
+    font-size: 0.9rem;
     color: #ffffff !important; 
     text-decoration: none;
     font-weight: 500; 
@@ -580,18 +545,11 @@ body.page-home main.main-content {
     line-height: 1;
 }
 
-/* YENİ KURAL: Kartın üzerine gelindiğinde (beyaz panel göründüğünde), 
-   ürün bilgi katmanını (siyah gradient) gizle */
 .product-list-item .product-card:hover .product-info-overlay {
     opacity: 0;
     visibility: hidden;
     transition-delay: 0s;
 }
-
-/* ================================================= */
-/* === GÜNCELLEME BURADA BİTİYOR === */
-/* ================================================= */
-
 
 .product-list-item .quick-add-section {
     position: absolute; bottom: 0; left: 0; width: 100%;
@@ -613,104 +571,62 @@ body.page-home main.main-content {
         font-size: 0.9rem; 
     }
 }
-.product-image-container { 
-    overflow: hidden;
-    position: relative; 
-}
-.product-list-item .product-card .card-img-top {
-    transition: transform 0.4s ease; 
-    display: block; 
-    border-radius: 0; 
-}
-.product-list-item .product-card:hover .card-img-top {
-    transform: scale(1.05); 
-}
-/* -------------------------------------------------
- YENİ EKLENEN KOD: Ana Sayfada Header Hover Etkisi 
--------------------------------------------------
-*/
 
-/* Ana sayfadayken (.page-home) header'ın üzerine gelindiğinde (:hover),
-  menü okunurluğu için "scrolled" (kaydırılmış) efektini uygula.
-*/
 body.page-home .site-header:hover {
-    background-color: #ffffff; /* Solid beyaz arkaplan */
-    border-bottom: 1px solid #dee2e6; /* Net bir sınır çizgisi */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Hafif gölge */
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
-
-/* Üzerine gelindiğinde, blurlu yansıma katmanını (.site-header::before)
-  gizle (opacity: 0).
-*/
 body.page-home .site-header:hover::before {
     opacity: 0;
 }
-/* -------------------------------------------------
- YENİ EKLENEN KOD: Renk Paletleri (Swatches) 
--------------------------------------------------
-*/
 
 .color-swatch {
-    /* Mevcut .variant-swatch stillerini (padding, min-width) ezelim */
-    width: 35px;           /* Sabit genişlik */
-    height: 35px;          /* Sabit yükseklik */
-    min-width: 35px;       /* Genişliği zorla */
-    padding: 0;            /* İç boşluğu sıfırla */
-    
-    border-radius: 50%;    /* Daire şeklinde yap */
-    border: 1px solid #dee2e6; /* Beyaz gibi açık renklerin görünmesi için sınır ekle */
-    
-    /* Metin gelse bile gizle (fallback durumu için) */
+    width: 35px;
+    height: 35px;
+    min-width: 35px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
     text-indent: -9999px;
     font-size: 0;
     line-height: 0;
 }
 
-/* Seçili olan paletin stilini belirginleştir */
 .color-swatch.selected {
-    border-color: #343a40; /* Ana rengimiz (Kömür) ile çerçevele */
+    border-color: #343a40;
     border-width: 2px;
-    transform: scale(1.1); /* Hafifçe büyüt */
-}/* -------------------------------------------------
- YENİ EKLENEN KOD: Hızlı Ekleme (Quick Add) Stilleri
--------------------------------------------------
-*/
+    transform: scale(1.1);
+}
 
-/* Zaten var olan .quick-add-section tanımını kullanır */
-
-/* Varyasyonları (renk+beden) tutan ana sarmalayıcı */
 .quick-view-variants-container {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; /* Renk ve beden satırları arası boşluk */
-    margin-bottom: 0.75rem; /* Butonla arası boşluk */
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-/* Renk dairelerinin satırı */
 .quick-view-colors {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem; /* Daireler arası boşluk */
+    gap: 0.35rem;
     justify-content: center;
 }
 
-/* Beden kutularının satırı */
 .quick-view-sizes {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem; /* Kutular arası boşluk */
+    gap: 0.35rem;
     justify-content: center;
 }
 
-/* Hızlı eklemedeki variant-swatch'ları biraz küçültelim */
 .quick-add-section .variant-swatch {
-    font-size: 0.75rem; /* Daha küçük yazı */
-    min-width: 28px;     /* Daha küçük minimum genişlik */
-    padding: 4px 8px;  /* Daha az iç boşluk */
+    font-size: 0.75rem;
+    min-width: 28px;
+    padding: 4px 8px;
     font-weight: 500;
 }
 
-/* Hızlı eklemedeki renk dairelerini küçült */
 .quick-add-section .color-swatch {
     width: 24px;
     height: 24px;
@@ -721,40 +637,297 @@ body.page-home .site-header:hover::before {
     border-width: 2px;
 }
 
-/* ... (mevcut stil dosyanızın sonuna ekleyin) ... */
-
-/* Sol menüdeki 2. seviye (çocuk) alt menüsü */
-.sidebar-submenu {
-    padding-left: 1rem;
-    padding-top: 0.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #dee2e6;
-}
-.sidebar-submenu a {
-    color: #6c757d;
-    text-decoration: none;
-    display: block;
-    padding: 0.3rem 0;
-}
-.sidebar-submenu a:hover {
-    color: #212529;
-}
-.sidebar-submenu a.active {
-    font-weight: bold;
-    color: #212529;
-}
-
-/* YENİ EKLENDİ: Sol menüdeki 3. seviye (torun) alt menüsü */
 .sidebar-submenu-inner {
-    padding-left: 1.2rem; /* Çocuklardan biraz daha içeride */
+    padding-left: 1.2rem;
     margin-top: 0.25rem;
     list-style: none;
 }
 .sidebar-submenu-inner a {
-    font-size: 0.9em; /* Biraz daha küçük font */
+    font-size: 0.9em;
     color: #6c757d;
 }
 .sidebar-submenu-inner a.active {
     color: #000;
     font-weight: bold;
+}
+
+/* ================================================= */
+/* === YENİ EKLENEN: ÜRÜN LİSTELEME GÖRÜNÜM AYARLARI === */
+/* ================================================= */
+
+/* Görünüm Değiştirici Butonları */
+.view-switcher .btn-link {
+    text-decoration: none;
+    transition: color 0.3s ease;
+    opacity: 0.6;
+}
+
+.view-switcher .btn-link:hover,
+.view-switcher .btn-link.active {
+    color: #000 !important; /* Aktif veya hover olunca siyah */
+    opacity: 1;
+}
+
+/* Yan Yana Grid Boşluk Ayarları */
+.product-grid-container {
+    transition: all 0.3s ease;
+}
+
+/* Filtre Alanı (Sol Taraf) İyileştirmeleri */
+.filter-form .accordion-item {
+    border: none;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-form .accordion-button {
+    padding: 1rem 0;
+    font-weight: 600;
+    color: #333;
+    box-shadow: none;
+}
+.filter-form .accordion-button:not(.collapsed) {
+    background-color: transparent;
+    color: #000;
+}
+
+/* Ürün Kartı Yazı Tipleri ve Boşluklar */
+.product-info-overlay h5 a {
+    font-family: 'Lato', sans-serif;
+    letter-spacing: 0.5px;
+}
+/* Filtre Butonu Stili */
+.btn-outline-dark {
+    border-width: 1px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+.btn-outline-dark:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Offcanvas (Filtre Paneli) Ayarları */
+.offcanvas {
+    /* İsteğe bağlı: Panelin genişliğini biraz artırmak için */
+    --bs-offcanvas-width: 350px; 
+}
+
+.offcanvas-header {
+    background-color: #f8f9fa; /* Başlık arka planı */
+}
+
+/* Offcanvas içindeki akordeon menü stili */
+.offcanvas .accordion-item {
+    border: none;
+    background: transparent;
+}
+.offcanvas .accordion-button {
+    padding: 0.75rem 0;
+    font-size: 0.95rem;
+    color: #333;
+    background-color: transparent;
+    box-shadow: none;
+}
+.offcanvas .accordion-button:not(.collapsed) {
+    color: #000;
+    font-weight: bold;
+    background-color: transparent;
+}
+.offcanvas .sidebar-main-link {
+    display: block;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+}
+.offcanvas .sidebar-main-link:hover,
+.offcanvas .sidebar-main-link.active {
+    color: #000;
+}
+
+/* Filtre Form Elemanları */
+.filter-form label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    margin-top: 1rem;
+}
+
+/* Checkbox Listesi Düzeni */
+.filter-form ul { 
+    list-style: none; 
+    padding-left: 0; 
+    margin-bottom: 0;
+}
+.filter-form li {
+    margin-bottom: 0.5rem;
+}
+.filter-form input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: #000; /* Checkbox rengi siyah */
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+}
+.filter-form label.form-check-label {
+    margin-top: 0; /* Bootstrap düzeltmesi */
+    font-weight: 400;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+/* Grid Görünüm Butonları */
+.view-switcher .btn-link {
+    text-decoration: none;
+    transition: color 0.3s ease;
+    opacity: 0.5;
+}
+.view-switcher .btn-link:hover,
+.view-switcher .btn-link.active {
+    color: #000 !important;
+    opacity: 1;
+}
+/* ================================================= */
+/* === YENİ: Slayt Tıklama Alanı === */
+/* ================================================= */
+.slide-click-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5; /* Overlay ve yazıların üzerinde olması için */
+    cursor: pointer;
+}
+
+/* Yazıların linkin altında kalıp seçilemez olmasını engellemek istersen: */
+/* Ancak "tüm fotoğrafa tıkla git" mantığı için yazıların da tıklanabilir olması iyidir. 
+   Eğer yazıyı seçmek (kopyalamak) önemliyse z-index ayarını değiştirebiliriz. 
+   Şu anki haliyle her yere tıklayınca linke gider. */
+   .category-checkbox-tree .form-check-input {
+    cursor: pointer;
+    border-color: #adb5bd;
+}
+.category-checkbox-tree .form-check-input:checked {
+    background-color: #000;
+    border-color: #000;
+}
+.category-checkbox-tree ul {
+    /* Çizgili ağaç yapısı için */
+    border-left: 1px solid #e9ecef;
+}
+/* --- FİLTRE VE KATEGORİ AĞACI STİLLERİ --- */
+
+/* Checkbox Stilleri */
+.form-check-input {
+    cursor: pointer;
+    border-color: #adb5bd; /* Gri kenarlık */
+}
+.form-check-input:checked {
+    background-color: #000; /* Siyah tik */
+    border-color: #000;
+}
+.form-check-input:focus {
+    border-color: #000;
+    box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+/* Açılır/Kapanır Ok Efekti */
+a[data-bs-toggle="collapse"] i {
+    transition: transform 0.3s ease; /* Dönme animasyonu */
+    display: inline-block;
+}
+
+/* Menü açıldığında oku 180 derece döndür */
+a[data-bs-toggle="collapse"]:not(.collapsed) i {
+    transform: rotate(180deg);
+}
+
+/* Crispy form tarafından oluşturulan basit listeler için düzenleme */
+.simple-checkbox-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+.simple-checkbox-list li {
+    margin-bottom: 0.5rem;
+}
+.simple-checkbox-list label {
+    font-weight: 400;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+/* Mini Sepet Stilleri */
+#offcanvas-cart-body {
+    overflow-y: auto; /* Çok ürün olunca kaydırma çubuğu çıksın */
+}
+.offcanvas-cart-items {
+    flex-grow: 1; /* Listenin alanı kaplamasını sağlar */
+}
+/* --- CANLI ARAMA STİLLERİ --- */
+.live-search-results {
+    position: absolute;
+    top: 100%; /* Arama kutusunun hemen altında */
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-top: none;
+    z-index: 1050; /* Menülerin üzerinde dursun */
+    display: none; /* Başlangıçta gizli */
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.live-search-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s;
+}
+
+.live-search-item:hover {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.live-search-item:last-child {
+    border-bottom: none;
+}
+
+.live-search-img {
+    width: 40px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.live-search-info h6 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.live-search-info span {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+/* Ürün Listesi Renk Noktaları */
+.color-dot-list {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.color-dot-list:hover {
+    transform: scale(1.3);
+    border-color: #333;
 }

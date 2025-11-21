@@ -5,7 +5,7 @@ from .cart import Cart
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone # YENİ: Zaman kontrolü için
-
+from django.template.loader import render_to_string
 # YENİ: Kupon formu ve modelini import et
 from orders.forms import CouponApplyForm
 from orders.models import Coupon
@@ -45,44 +45,50 @@ def cart_apply_coupon(request):
 
 @require_POST
 def cart_add(request, variant_id):
-    # ... (Mevcut kodunuz) ...
     cart = Cart(request)
     variant = get_object_or_404(ProductVariant, id=variant_id)
-    quantity = int(request.POST.get('quantity', 1))
+    
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+    except ValueError:
+        quantity = 1
 
-    if variant.stock < quantity:
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'error', 'message': 'Stok yetersiz.'}, status=400)
-        messages.error(request, 'Stok yetersiz.')
-        return redirect('products:product_detail', slug=variant.product.slug)
+    # Stok Kontrolü
+    current_qty_in_cart = cart.cart.get(str(variant_id), {}).get('quantity', 0)
+    if current_qty_in_cart + quantity > variant.stock:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Stok yetersiz! En fazla {variant.stock} adet alabilirsiniz.'
+        }, status=400)
 
     cart.add(variant=variant, quantity=quantity)
-    
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({
-            'status': 'ok',
-            'message': 'Ürün sepete eklendi.',
-            'cart_total_items': len(cart)
-        })
-    messages.success(request, 'Ürün sepete eklendi.')
-    return redirect(request.META.get('HTTP_REFERER', 'cart:cart_detail'))
 
+    # --- GÜNCELLEME: Yeni HTML'i Hazırla ---
+    # Sepetin güncel halini HTML olarak render et
+    cart_html = render_to_string('cart/partials/offcanvas_body.html', {'cart': cart}, request=request)
+    
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'Ürün sepete eklendi.',
+        'cart_total_items': len(cart),
+        'cart_html': cart_html  # HTML'i frontend'e gönder
+    })
 
 @require_POST
 def cart_remove(request, variant_id):
-    # ... (Mevcut kodunuz) ...
     cart = Cart(request)
     variant = get_object_or_404(ProductVariant, id=variant_id)
     cart.remove(variant)
+    
+    # --- GÜNCELLEME: Yeni HTML'i Hazırla ---
+    cart_html = render_to_string('cart/partials/offcanvas_body.html', {'cart': cart}, request=request)
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({
-            'status': 'reload',
-            'message': 'Ürün sepetten kaldırıldı.',
-            'cart_total_items': len(cart)
-        })
-    messages.success(request, 'Ürün sepetten kaldırıldı.')
-    return redirect('cart:cart_detail')
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'Ürün sepetten çıkarıldı.',
+        'cart_total_items': len(cart),
+        'cart_html': cart_html # HTML'i frontend'e gönder
+    })
 
 
 @require_POST

@@ -39,6 +39,8 @@ class ProductVariantInline(admin.TabularInline):
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
+    # YENİ: Admin panelinde renk seçimi görünsün
+    fields = ('image', 'color', 'alt_text')
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

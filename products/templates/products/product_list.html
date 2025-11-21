@@ -4,87 +4,164 @@
 
 {% block content %}
 <div class="container-fluid my-4 px-md-5">
-    <div class="row">
-        <div class="col-md-3">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h3 mb-0 d-inline-block align-middle">
+                {% if current_category %}{{ current_category.name }}{% else %}Tüm Ürünler{% endif %}
+            </h1>
+            <span class="text-muted small ms-2 align-middle">({{ page_obj.paginator.count }} Ürün)</span>
+        </div>
+        
+        <div class="d-flex align-items-center flex-wrap gap-2">
             
-            <h3 class="mb-3">Kategoriler</h3>
-            
-            <a href="{% url 'products:product_list' %}" class="sidebar-main-link {% if not current_category %}active{% endif %}">
-                Tüm Ürünler
-            </a>
-            <div class="accordion accordion-flush" id="categoryAccordion">
-                {% for category in main_categories %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading-{{ category.slug }}">
-                        <a href="{{ category.get_absolute_url }}" class="sidebar-main-link {% if current_category.slug == category.slug or current_category.parent.slug == category.slug %}active{% endif %}">
-                            {{ category.name }}
-                        </a>
-                        {% if category.children.all %}
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ category.slug }}">
-                        </button>
-                        {% endif %}
-                    </h2>
-                    
-                    {% with parent_category=current_category.parent|default:current_category %}
-                    <div id="collapse-{{ category.slug }}" class="accordion-collapse collapse {% if parent_category.slug == category.slug %}show{% endif %}" data-bs-parent="#categoryAccordion">
-                        <div class="accordion-body">
-                            <ul class="list-unstyled sidebar-submenu">
-                                {% for child in category.children.all %}
-                                <li>
-                                    <a href="{{ child.get_absolute_url }}" class="{% if current_category.slug == child.slug %}active{% endif %}">
-                                        {{ child.name }}
-                                    </a>
-                                    
-                                    {% if child.children.all %}
-                                        <ul class="list-unstyled sidebar-submenu-inner">
-                                            {% for grandchild in child.children.all %}
-                                            <li>
-                                                <a href="{{ grandchild.get_absolute_url }}" class="{% if current_category.slug == grandchild.slug %}active{% endif %}">
-                                                    {{ grandchild.name }}
-                                                </a>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    {% endwith %}
-                    </div>
-                {% endfor %}
-            </div>
-            <hr class="my-4">
-            <h3 class="mb-3">Filtrele</h3>
-            <form method="get" class="filter-form">
-                {{ product_filter.form|crispy }}
-                <div class="d-grid mt-3">
-                    <button type="submit" class="btn btn-primary">Filtrele</button>
-                </div>
-            </form>
+            <div class="me-2">
+                <select class="form-select form-select-sm rounded-pill border-dark" onchange="updateSort(this.value)">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>En Yeniler</option>
+                    <option value="bestseller" {% if current_sort == 'bestseller' %}selected{% endif %}>Çok Satanlar</option>
+                    <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>En Düşük Fiyat</option>
+                    <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>En Yüksek Fiyat</option>
+                    <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>Değerlendirmesi Yüksek</option>
+                </select>
             </div>
 
-        <div class="col-md-9">
-            <h1 class="mb-4">{% if current_category %}{{ current_category.name }}{% else %}Ürünlerimiz{% endif %}</h1>
-            <div class="row">
+            <button class="btn btn-outline-dark d-flex align-items-center px-3 rounded-pill" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas" aria-controls="filterOffcanvas">
+                <i class="bi bi-sliders me-2"></i> Filtrele
+            </button>
+
+            <div class="view-switcher d-none d-lg-flex border-start ps-3 align-items-center"> 
+                <button class="btn btn-link text-dark p-0 me-3 js-grid-switch active" data-cols="4" title="4'lü Görünüm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 1h2.5v2.5H1V1zm4 0h2.5v2.5H5V1zm4 0h2.5v2.5H9V1zm4 0h2.5v2.5H13V1zm-12 4h2.5v2.5H1V5zm4 0h2.5v2.5H5V5zm4 0h2.5v2.5H9V5zm4 0h2.5v2.5H13V5zm-12 4h2.5v2.5H1V9zm4 0h2.5v2.5H5V9zm4 0h2.5v2.5H9V9zm4 0h2.5v2.5H13V9zm-12 4h2.5v2.5H1V13zm4 0h2.5v2.5H5V13zm4 0h2.5v2.5H9V13zm4 0h2.5v2.5H13V13z"/>
+                    </svg>
+                </button>
+                <button class="btn btn-link text-muted p-0 js-grid-switch" data-cols="3" title="3'lü Görünüm">
+                    <i class="bi bi-grid-3x3-gap-fill fs-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="filterOffcanvas" aria-labelledby="filterOffcanvasLabel">
+        <div class="offcanvas-header border-bottom bg-light">
+            <h5 class="offcanvas-title fw-bold" id="filterOffcanvasLabel">Filtrele</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
+        </div>
+        <div class="offcanvas-body p-4">
+            
+            <form method="get" class="filter-form">
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Kategoriler</h6>
+                
+                <div class="accordion-filter mb-4">
+                    <ul class="list-unstyled m-0 p-0">
+                        {% for category in main_categories %}
+                        <li class="mb-1">
+                            <div class="d-flex align-items-center justify-content-between py-1">
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input shadow-none rounded-0" type="checkbox" name="category" value="{{ category.id }}" id="cat-{{ category.id }}"
+                                    {% if category.id|stringformat:"s" in request.GET|dictsort:"category" or category.id|stringformat:"s" in request.GET.category %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold text-uppercase small" for="cat-{{ category.id }}">
+                                        {{ category.name }}
+                                    </label>
+                                </div>
+                                
+                                {% if category.children.all %}
+                                    <a class="text-dark p-1 collapsed" data-bs-toggle="collapse" href="#collapse-{{ category.id }}" role="button" aria-expanded="false">
+                                        <i class="bi bi-chevron-down small"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            {% if category.children.all %}
+                                <div class="collapse ps-3 border-start ms-2 mt-1" id="collapse-{{ category.id }}">
+                                    <ul class="list-unstyled m-0 p-0">
+                                        {% for child in category.children.all %}
+                                        <li class="mb-1">
+                                            <div class="d-flex align-items-center justify-content-between py-1">
+                                                <div class="form-check mb-0">
+                                                    <input class="form-check-input shadow-none rounded-0" type="checkbox" name="category" value="{{ child.id }}" id="cat-{{ child.id }}"
+                                                    {% if child.id|stringformat:"s" in request.GET|dictsort:"category" or child.id|stringformat:"s" in request.GET.category %}checked{% endif %}>
+                                                    <label class="form-check-label small" for="cat-{{ child.id }}">
+                                                        {{ child.name }}
+                                                    </label>
+                                                </div>
+                                                {% if child.children.all %}
+                                                    <a class="text-muted p-1 collapsed" data-bs-toggle="collapse" href="#collapse-{{ child.id }}" role="button" aria-expanded="false">
+                                                        <i class="bi bi-chevron-down small" style="font-size: 0.7rem;"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+
+                                            {% if child.children.all %}
+                                                <div class="collapse ps-3 border-start ms-2 mt-1" id="collapse-{{ child.id }}">
+                                                    <ul class="list-unstyled m-0 p-0">
+                                                        {% for grandchild in child.children.all %}
+                                                        <li class="mb-1">
+                                                            <div class="form-check mb-0 py-1">
+                                                                <input class="form-check-input shadow-none rounded-0" type="checkbox" name="category" value="{{ grandchild.id }}" id="cat-{{ grandchild.id }}"
+                                                                {% if grandchild.id|stringformat:"s" in request.GET|dictsort:"category" or grandchild.id|stringformat:"s" in request.GET.category %}checked{% endif %}>
+                                                                <label class="form-check-label small text-muted" for="cat-{{ grandchild.id }}">
+                                                                    {{ grandchild.name }}
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <h6 class="fw-bold mb-3 border-bottom pb-2 mt-4">Renk</h6>
+                <div class="mb-4 simple-checkbox-list">
+                    {{ product_filter.form.color|as_crispy_field }}
+                </div>
+
+                <h6 class="fw-bold mb-3 border-bottom pb-2">Beden</h6>
+                <div class="mb-4 simple-checkbox-list">
+                    {{ product_filter.form.size|as_crispy_field }}
+                </div>
+
+                <div class="d-grid mt-5 gap-2">
+                    <button type="submit" class="btn btn-dark btn-lg">Sonuçları Göster</button>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary">Temizle</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div id="product-grid-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
                 {% for product in page_obj %}
-                    
-                    <div class="col-lg-4 col-md-6 mb-4 product-list-item">
+                    <div class="col product-list-item">
                         <div class="card h-100 product-card border-0 shadow-sm" data-product-slug="{{ product.slug }}">
+                            
                             <div class="product-image-container position-relative">
                                 
-                                {% if product.image %}
+                                {% if product.get_main_image %}
                                     <a href="{{ product.get_absolute_url }}">
-                                        <img src="{{ product.image.url }}" 
-                                            class="card-img-top js-hover-cycle-image"
+                                        <img src="{{ product.get_main_image.url }}" 
+                                            id="card-img-{{ product.id }}"
+                                            class="card-img-top js-card-img"
                                             alt="{{ product.name }}"
-                                            data-main-image="{{ product.image.url }}" 
-                                            data-gallery="{% for img in product.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                                            data-original-src="{{ product.get_main_image.url }}" 
                                         >
                                     </a>
                                 {% else %}
-                                    <a href="{{ product.get_absolute_url }}"><img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="{{ product.name }}"></a>
+                                    <a href="{{ product.get_absolute_url }}">
+                                        <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="{{ product.name }}">
+                                    </a>
                                 {% endif %}
 
                                 {% if user.is_authenticated %}
@@ -104,22 +181,44 @@
                                             <h6 class="card-subtitle fw-bold fs-6">-</h6>
                                         {% endif %}
                                     {% endwith %}
+                                    
+                                    {% if product.avg_rating %}
+                                        <div class="text-warning small mt-1">
+                                            <i class="bi bi-star-fill"></i> {{ product.avg_rating|floatformat:1 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 
                                 <div class="quick-add-section">
                                     <div class="quick-add-loading text-center p-2">
-                                        <div class="spinner-border spinner-border-sm" role="status">
-                                            <span class="visually-hidden">Yükleniyor...</span>
-                                        </div>
+                                        <div class="spinner-border spinner-border-sm" role="status"></div>
                                     </div>
-                                    </div>
+                                </div>
+                            </div>
 
-                            </div> 
+                            <div class="card-body p-2 text-center">
+                                <div class="d-flex justify-content-center gap-1 mt-1">
+                                    {% for color_data in product.get_color_variant_data %}
+                                        <div class="color-dot-list" 
+                                             style="background-color: {{ color_data.hex_code }};"
+                                             title="{{ color_data.color_name }}"
+                                             data-img-src="{{ color_data.image_url }}"
+                                             data-target-img="card-img-{{ product.id }}">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
                         </div> 
                     </div> 
                 {% empty %}
-                    <div class="col">
-                        <div class="alert alert-info">Bu kategoride veya aramanızla eşleşen ürün bulunamadı.</div>
+                    <div class="col-12">
+                        <div class="alert alert-light text-center py-5">
+                            <i class="bi bi-search fs-1 text-muted mb-3"></i>
+                            <h4>Ürün Bulunamadı</h4>
+                            <p class="text-muted">Seçtiğiniz kriterlere uygun ürün bulunmamaktadır.</p>
+                            <a href="{% url 'products:product_list' %}" class="btn btn-dark mt-2">Filtreleri Temizle</a>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -127,4 +226,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function updateSort(sortValue) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('sort', sortValue);
+        urlParams.delete('page');
+        window.location.search = urlParams.toString();
+    }
+</script>
+
 {% endblock %}

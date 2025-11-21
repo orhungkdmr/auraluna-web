@@ -1,28 +1,30 @@
 import django_filters
 from django import forms
-from .models import Product, Color, Size
+from .models import Product, Color, Size, Category
 
 class ProductFilter(django_filters.FilterSet):
-    # ModelMultipleChoiceFilter, birden fazla seçeneği (checkbox)
-    # aynı anda seçmemize olanak tanır.
-    
+    # Kategorileri çoklu seçilebilir yapıyoruz (name='category')
+    category = django_filters.ModelMultipleChoiceFilter(
+        queryset=Category.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        label="Kategoriler",
+        conjoined=False  # False = VEYA mantığı (Gömlek VEYA Pantolon getir)
+    )
+
     color = django_filters.ModelMultipleChoiceFilter(
-        field_name='variants__color', # İlişkili model üzerinden filtreleme
+        field_name='variants__color', 
         queryset=Color.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        label="Renge Göre Filtrele"
+        label="Renk"
     )
     
     size = django_filters.ModelMultipleChoiceFilter(
-        field_name='variants__size', # İlişkili model üzerinden filtreleme
-        queryset=Size.objects.all().order_by('order'), # Bedenleri sıralı getir
+        field_name='variants__size', 
+        queryset=Size.objects.all().order_by('order'), 
         widget=forms.CheckboxSelectMultiple,
-        label="Bedene Göre Filtrele"
+        label="Beden"
     )
 
     class Meta:
         model = Product
-        # 'fields' önemlidir, ancak asıl filtrelemeyi yukarıda 
-        # manuel olarak tanımladık çünkü varyantlar üzerinden gitmemiz gerekiyor.
-        # Burayı sadece 'model' tanımı için kullanıyoruz.
-        fields = ['color', 'size']
+        fields = ['category', 'color', 'size']

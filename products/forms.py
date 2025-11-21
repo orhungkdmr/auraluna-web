@@ -1,10 +1,9 @@
 from django import forms
-from .models import Review
+from .models import Review, StockNotification
 
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        # Sadece bu iki alanı kullanıcıdan alacağız
         fields = ['rating', 'comment']
         widgets = {
             'rating': forms.Select(attrs={'class': 'form-select'}),
@@ -13,4 +12,13 @@ class ReviewForm(forms.ModelForm):
         labels = {
             'rating': 'Puanınız',
             'comment': 'Yorumunuz'
+        }
+
+class StockNotificationForm(forms.ModelForm):
+    class Meta:
+        # DÜZELTME: 'products.StockNotification' değil, direkt sınıf adı
+        model = StockNotification 
+        fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'E-posta adresiniz'}),
         }

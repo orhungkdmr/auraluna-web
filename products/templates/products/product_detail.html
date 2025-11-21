@@ -1,33 +1,67 @@
 {% extends "base.html" %}
 {% load static %}
-{% load crispy_forms_tags %} {# Yorum formu için bu gereklidir #}
+{% load crispy_forms_tags %}
+
+{# --- ÜRÜNE ÖZEL BAŞLIK VE META ETİKETLERİ (SEO & PAYLAŞIM) --- #}
+{% block title %}{{ product.name }} | AuraLuna{% endblock %}
+
+{% block meta_tags %}
+    <meta name="description" content="{{ product.description|striptags|truncatechars:150 }}">
+    
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{{ product.name }}">
+    <meta property="og:description" content="{{ product.description|striptags|truncatechars:200 }}">
+    {% if product.image %}
+        <meta property="og:image" content="{{ product.image.url }}">
+    {% else %}
+        <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}">
+    {% endif %}
+    
+    {% with first_variant=product.variants.first %}
+        {% if first_variant %}
+            <meta property="product:price:amount" content="{{ first_variant.price }}">
+            <meta property="product:price:currency" content="TRY">
+        {% endif %}
+    {% endwith %}
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="{{ product.name }}">
+    <meta property="twitter:description" content="{{ product.description|striptags|truncatechars:200 }}">
+    {% if product.image %}
+        <meta property="twitter:image" content="{{ product.image.url }}">
+    {% endif %}
+{% endblock %}
+{# ------------------------------------------- #}
 
 {% block content %}
 <div class="container my-5">
     <div class="row">
+        
         <div class="col-md-6 mb-4 product-gallery">
             {# Küçük Resimler (Thumbnails) #}
             <div class="thumbnail-container">
-                {# Ana resim için de thumbnail linki #}
+                {# Ana kapak resmi #}
                 {% if product.image %}
-                <a href="{{ product.image.url }}" data-lightbox="product-gallery" data-title="{{ product.name }}">
-                    <img src="{{ product.image.url }}" class="thumbnail-img active" alt="{{ product.name }} - Kapak">
-                </a>
+                <img src="{{ product.image.url }}" 
+                     class="thumbnail-img active" 
+                     alt="{{ product.name }} - Kapak"
+                     data-color="all"> 
                 {% endif %}
-                {# Diğer galeri resimleri için thumbnail linkleri #}
+                
+                {# Galeri Resimleri #}
                 {% for img in product_images %}
-                <a href="{{ img.image.url }}" data-lightbox="product-gallery" data-title="{{ img.alt_text|default:product.name }}">
-                    <img src="{{ img.image.url }}" class="thumbnail-img" alt="{{ img.alt_text }}">
-                </a>
+                <img src="{{ img.image.url }}" 
+                     class="thumbnail-img {% if not product.image and forloop.first %}active{% endif %}" 
+                     alt="{{ img.alt_text }}"
+                     data-color="{% if img.color %}{{ img.color.name }}{% else %}all{% endif %}">
                 {% endfor %}
             </div>
 
             {# Ana Resim Alanı #}
-            <div class="main-image-container">
-                {% if product.image %}
-                <a href="{{ product.image.url }}" data-lightbox="product-gallery-main" data-title="{{ product.name }}">
-                    <img src="{{ product.image.url }}" id="main-product-image" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
-                </a>
+            <div class="main-image-container position-relative">
+                {% if product.get_main_image %}
+                    <img src="{{ product.get_main_image.url }}" id="main-product-image" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
                 {% else %}
                     <img src="{% static 'images/placeholder.png' %}" id="main-product-image" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
                 {% endif %}
@@ -37,19 +71,36 @@
         <div class="col-md-6">
             <div class="d-flex align-items-center mb-2">
                 <h1 class="me-3 mb-0">{{ product.name }}</h1>
-                {% if user.is_authenticated %}<a href="{% url 'products:toggle_favourite' product.slug %}" class="text-danger js-toggle-favourite">{% if user in product.favourited_by.all %}<i class="bi bi-heart-fill fs-3"></i>{% else %}<i class="bi bi-heart fs-3"></i>{% endif %}</a>{% endif %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'products:toggle_favourite' product.slug %}" class="text-danger js-toggle-favourite">
+                        {% if user in product.favourited_by.all %}
+                            <i class="bi bi-heart-fill fs-3"></i>
+                        {% else %}
+                            <i class="bi bi-heart fs-3"></i>
+                        {% endif %}
+                    </a>
+                {% endif %}
             </div>
+            
             <p class="lead text-muted">{{ product.category }}</p>
             <hr>
             
             <h3 id="product-price" class="mb-3">Fiyat için seçim yapın</h3>
-            <p id="product-stock">Beden ve renk seçiniz</p>
             
             <form id="add-to-cart-form" method="post" class="mt-4 js-ajax-cart-form" data-base-action="{% url 'cart:cart_add' 0 %}">
                 {% csrf_token %}
-                <div class="mb-3"><label class="form-label fw-bold">Renk:</label><div id="color-selector" class="d-flex flex-wrap gap-2"></div></div>
-                <div class="mb-3"><label class="form-label fw-bold">Beden:</label><div id="size-selector" class="d-flex flex-wrap gap-2"></div></div>
-                <div class="d-flex align-items-center mt-4">
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Renk:</label>
+                    <div id="color-selector" class="d-flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Beden:</label>
+                    <div id="size-selector" class="d-flex flex-wrap gap-2"></div>
+                </div>
+
+                <div id="stock-action-container" class="d-flex align-items-center mt-4">
                     <div class="quantity-selector me-3">
                         <button type="button" class="btn btn-secondary" id="quantity-minus" disabled>-</button>
                         <input type="number" name="quantity" id="quantity-input" class="form-control text-center" value="1" min="1" readonly>
@@ -58,6 +109,22 @@
                     <button type="submit" id="add-to-cart-btn" class="btn btn-lg btn-success flex-grow-1" disabled>Sepete Ekle</button>
                 </div>
             </form>
+
+            <div id="notify-stock-container" class="mt-4 p-3 bg-light rounded border" style="display: none;">
+                <h6 class="fw-bold text-danger mb-2"><i class="bi bi-bell"></i> Tükendi!</h6>
+                <p class="small text-muted mb-2">Bu varyasyonun stoğu bitti. Gelince haber verelim mi?</p>
+                
+                <form id="notify-stock-form" action="{% url 'products:stock_notification_request' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="variant_id" id="notify-variant-id">
+                    <div class="input-group">
+                        <input type="email" name="email" class="form-control" placeholder="E-posta adresiniz" required 
+                               value="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
+                        <button class="btn btn-dark" type="submit">Haber Ver</button>
+                    </div>
+                </form>
+            </div>
+
             <br>
             <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary mt-3"> &larr; Alışverişe Devam Et</a>
         </div>
@@ -131,36 +198,35 @@
                                 </form>
                                 
                             {% elif user_has_reviewed %}
-                                <div class="alert alert-info">
-                                    Bu ürünü zaten değerlendirdiniz. Teşekkür ederiz!
-                                </div>
-                                
+                                <div class="alert alert-info">Bu ürünü zaten değerlendirdiniz. Teşekkür ederiz!</div>
                             {% elif user.is_authenticated %}
-                                <div class="alert alert-warning">
-                                    Bu ürünü değerlendirebilmek için <strong>satın almış</strong> olmanız gerekmektedir.
-                                </div>
-                                
+                                <div class="alert alert-warning">Bu ürünü değerlendirebilmek için <strong>satın almış</strong> olmanız gerekmektedir.</div>
                             {% else %}
-                                <div class="alert alert-primary">
-                                    Değerlendirme yapmak için lütfen <a href="{% url 'login' %}?next={{ request.path }}">giriş yapın</a>.
-                                </div>
+                                <div class="alert alert-primary">Değerlendirme yapmak için lütfen <a href="{% url 'login' %}?next={{ request.path }}">giriş yapın</a>.</div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
+
     <div class="row mt-5">
         <div class="col-12">
             <h2 class="text-center mb-4">Bunlar da İlgini Çekebilir</h2>
             <div class="row">
                 {% for similar_product in similar_products %}
                     <div class="col-md-3 mb-4">
-                        <div class="card h-100">
-                            {% if similar_product.image %}<a href="{{ similar_product.get_absolute_url }}"><img src="{{ similar_product.image.url }}" class="card-img-top" alt="{{ similar_product.name }}"></a>{% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="{{ similar_product.get_absolute_url }}" class="text-dark text-decoration-none">{{ similar_product.name }}</a></h5>
+                        <div class="card h-100 border-0 shadow-sm">
+                            {% if similar_product.get_main_image %}
+                                <a href="{{ similar_product.get_absolute_url }}">
+                                    <img src="{{ similar_product.get_main_image.url }}" class="card-img-top" alt="{{ similar_product.name }}">
+                                </a>
+                            {% endif %}
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <a href="{{ similar_product.get_absolute_url }}" class="text-dark text-decoration-none">{{ similar_product.name }}</a>
+                                </h5>
                                 {% with first_variant=similar_product.variants.first %}
                                     {% if first_variant %}
                                         <h6 class="card-subtitle mb-2 text-muted">{{ first_variant.price }} TL</h6>
