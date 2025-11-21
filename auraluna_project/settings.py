@@ -128,7 +128,7 @@ STORAGES = {
     },
     "staticfiles": {
         # YAZIM HATASI DÜZELTİLDİ: WhiteNoiseStorage yerine doğru sınıf adı:
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", 
+        "BACKEND": "whitenoise.storage.WhiteNoiseStaticFilesStorage", 
         # NOT: Eğer CompressedStaticFilesStorage hala hata verirse, aşağıdaki basit olanı kullan:
         # "BACKEND": "whitenoise.storage.WhiteNoiseStaticFilesStorage",
     },
