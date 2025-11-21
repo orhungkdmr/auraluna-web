@@ -143,7 +143,14 @@ cloudinary.config(
 )
 
 print("--- MOD: DJANGO 5 STORAGES AYARLARI AKTİF (CLOUDINARY) ---")
-
+# ==================================================
+# === STATİK BULUCULAR (WHITENOISE/CLOUDINARY FIX) ===
+# ==================================================
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # Diğer Finder'lar (örn. Compressors) buraya eklenebilir
+]
 
 # ==================================================
 # === DİĞER AYARLAR ===
