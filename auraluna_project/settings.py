@@ -7,19 +7,28 @@ import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Debug için klasör yolunu yazdıralım
-print(f" --- DEBUG: BASE_DIR is: {BASE_DIR} ---")
-
-# .env dosyasını yükle
+# .env dosyasını yükle (Varsa)
 load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# ==================================================
+# === ORTAM KONTROLÜ (RENDER MI LOCAL MI?) ===
+# ==================================================
+# Render otomatik olarak 'RENDER' değişkenini set eder.
+IN_RENDER = os.environ.get('RENDER')
+
+if IN_RENDER:
+    # Canlı Sunucu (Render)
+    DEBUG = False
+    print("--- DURUM: CANLI SUNUCUDAYIZ (RENDER) ---")
+else:
+    # Yerel Bilgisayar
+    DEBUG = True
+    print("--- DURUM: YEREL BILGISAYARDAYIZ (LOCAL) ---")
 
 # ==================================================
 # === GÜVENLİK AYARLARI ===
 # ==================================================
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-varsayilan-anahtar-degistir')
-
-# Render'da DEBUG = False olmalı
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
@@ -28,27 +37,23 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 # === UYGULAMALAR (APPS) ===
 # ==================================================
 INSTALLED_APPS = [
-    # 3. Parti - Cloudinary
-    'cloudinary_storage',
+    'cloudinary_storage', # En üstte olmalı
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    
-    # Whitenoise (Statik dosyaları sunmak için)
-    'django.contrib.staticfiles',
-    
-    'cloudinary', # Cloudinary ana uygulaması
+    'django.contrib.staticfiles', # Whitenoise
+    'cloudinary', # Cloudinary
 
     # Kendi Uygulamalarımız
     'products',
-    'pages',     # Statik dosyalar artık burada!
+    'pages',
     'cart',
     'orders',
     'accounts',
     
-    # 3. Parti Uygulamalar
+    # 3. Parti
     'crispy_forms',
     'crispy_bootstrap5',
     'django_filters',
@@ -57,7 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Whitenoise BURADA OLMALI
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,7 +84,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Proje özel processörler
                 'cart.context_processors.cart',
                 'cart.context_processors.main_categories',
                 'pages.context_processors.site_settings', 
@@ -93,10 +97,8 @@ WSGI_APPLICATION = 'auraluna_project.wsgi.application'
 
 
 # ==================================================
-# === VERİTABANI AYARI (HİBRİT) ===
+# === VERİTABANI AYARI ===
 # ==================================================
-# Eğer .env dosyasında DATABASE_URL varsa onu kullanır (Render PostgreSQL)
-# Yoksa otomatik olarak yerel db.sqlite3 dosyasına düşer.
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
@@ -106,7 +108,7 @@ DATABASES = {
 
 
 # ==================================================
-# === ŞİFRE DOĞRULAMA ===
+# === ŞİFRE VE DİL AYARLARI ===
 # ==================================================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -115,10 +117,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# ==================================================
-# === ULUSLARARASILAŞTIRMA ===
-# ==================================================
 LANGUAGE_CODE = 'tr'
 TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
@@ -126,31 +124,32 @@ USE_TZ = True
 
 
 # ==================================================
-# === STATİK VE MEDYA AYARLARI (UYGULAMA İÇİ YAPI) ===
+# === STATİK VE MEDYA AYARLARI (KESİN ÇÖZÜM) ===
 # ==================================================
 STATIC_URL = '/static/'
-
-# Render'ın dosyaları toplayacağı yer (collectstatic buraya atar)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# ÖNEMLİ: Dosyaları 'pages' uygulaması içine taşıdığımız için,
-# Django bunları otomatik bulacaktır.
-# Ana dizinde artık 'static' klasörü olmadığı için aşağıdaki satırı YORUM SATIRI yaptık.
-# STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static') ]
-STATICFILES_DIRS = []
-# ---------------------------
-# --- CANLI SUNUCU AYARLARI (DEBUG=False ise) ---
-if not DEBUG:
-    # Statik dosyalar için Whitenoise (Sıkıştırma ve Caching)
+# Dosyalar 'assets' klasöründe
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'assets'),
+]
+
+# --- RENDER (CANLI) AYARLARI ---
+if IN_RENDER:
+    # Statik Dosyalar (CSS/JS) -> Whitenoise
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
-    # Medya (Resimler) için Cloudinary
-   
+    # Medya Dosyaları (Resimler) -> Cloudinary
+    CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     
-# --- YEREL GELİŞTİRME AYARLARI (DEBUG=True ise) ---
+    # Cloudinary'ye statik dosyaları karıştırma diyoruz
+    CLOUDINARY_STORAGE_MANAGE_STATICFILES = False
+    
+    # DİKKAT: Canlıda MEDIA_URL tanımlamıyoruz, Cloudinary URL'i kendi verir.
+
+# --- LOCAL (BILGISAYAR) AYARLARI ---
 else:
-    # Bilgisayarında resimleri klasöre kaydet
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -160,17 +159,13 @@ else:
 # ==================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CART_SESSION_ID = 'cart'
-
-# Login/Logout yönlendirmeleri
 LOGIN_REDIRECT_URL = "pages:home"
 LOGOUT_REDIRECT_URL = "pages:home"
 LOGIN_URL = "login"
-
-# Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# E-posta Ayarları (SMTP)
+# E-posta
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
@@ -179,7 +174,7 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-# Stripe Ödeme Ayarları
+# Stripe
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_API_VERSION = '2024-06-20'
