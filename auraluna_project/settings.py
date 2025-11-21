@@ -4,15 +4,12 @@ import dj_database_url
 from dotenv import load_dotenv
 import sys
 
-# 1. ÖNCE BASE_DIR TANIMLANMALI
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 2. SONRA DEBUG PRINT YAPILABİLİR
-# Bu satır Render loglarında klasör yolunu görmemizi sağlar (Hata ayıklama için)
+# Debug için klasör yolunu yazdıralım
 print(f" --- DEBUG: BASE_DIR is: {BASE_DIR} ---")
 
-# 3. .ENV YÜKLEME
 # .env dosyasını yükle
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
@@ -21,8 +18,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # ==================================================
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-varsayilan-anahtar-degistir')
 
-# DEBUG ayarı: .env dosyasında 'True' yazıyorsa True, yoksa False kabul eder.
-# Render'da Environment Variables kısmına DEBUG = False eklediğimiz için canlıda False olur.
+# Render'da DEBUG = False olmalı
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
@@ -40,14 +36,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     
-    # Whitenoise (staticfiles'dan önce olmasa da olur ama burada durması standarttır)
+    # Whitenoise (Statik dosyaları sunmak için)
     'django.contrib.staticfiles',
     
     'cloudinary', # Cloudinary ana uygulaması
 
     # Kendi Uygulamalarımız
     'products',
-    'pages',
+    'pages',     # Statik dosyalar artık burada!
     'cart',
     'orders',
     'accounts',
@@ -130,33 +126,17 @@ USE_TZ = True
 
 
 # ==================================================
-# === STATİK VE MEDYA AYARLARI (RENDER UYUMLU & DEBUG) ===
+# === STATİK VE MEDYA AYARLARI (UYGULAMA İÇİ YAPI) ===
 # ==================================================
 STATIC_URL = '/static/'
 
-# collectstatic komutunun dosyaları toplayacağı yer (Render burayı kullanır)
+# Render'ın dosyaları toplayacağı yer (collectstatic buraya atar)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Senin oluşturduğun statik dosyaların yeri
-# os.path.join kullanarak işletim sistemi farkını ortadan kaldırıyoruz
-static_dir = os.path.join(BASE_DIR, 'static')
-
-# Loglara klasörün var olup olmadığını yazdıralım (Hata ayıklama için)
-if os.path.exists(static_dir):
-    print(f" --- DEBUG: 'static' klasörü bulundu: {static_dir} ---")
-else:
-    print(f" --- DEBUG: DİKKAT! 'static' klasörü BULUNAMADI: {static_dir} ---")
-    # Alternatif isimleri kontrol et (Büyük/Küçük harf hatası için)
-    try:
-        for item in os.listdir(BASE_DIR):
-            if item.lower() == 'static':
-                print(f" --- DEBUG: Ama '{item}' adında bir klasör var. Harf hatası olabilir! ---")
-    except:
-        pass
-
-STATICFILES_DIRS = [
-    static_dir,
-]
+# ÖNEMLİ: Dosyaları 'pages' uygulaması içine taşıdığımız için,
+# Django bunları otomatik bulacaktır.
+# Ana dizinde artık 'static' klasörü olmadığı için aşağıdaki satırı YORUM SATIRI yaptık.
+# STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static') ]
 
 # --- CANLI SUNUCU AYARLARI (DEBUG=False ise) ---
 if not DEBUG:
@@ -177,8 +157,6 @@ else:
     # Bilgisayarında resimleri klasöre kaydet
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    
-    # Yerelde standart Django statik sunucusu kullanılır
 
 
 # ==================================================
