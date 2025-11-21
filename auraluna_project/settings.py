@@ -121,14 +121,15 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'ULTnxyuXxs_EJYOUlVX2--vsf_E' # <--- BURAYI DOLDUR
 }
 
-# 2. Django 5 İçin Yeni Depolama Yapısı (STORAGES)
-# Eski DEFAULT_FILE_STORAGE yerine bu kullanılır.
+# --- DJANGO 5 İÇİN DEPOLAMA AYARLARI ---
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        # SIKISTIRMAYI GECICI OLARAK KAPATTIK (Manifest kullanmıyoruz)
+        # Bu, sıkıştırma hatası nedeniyle build'in durmasını önler.
+        "BACKEND": "whitenoise.storage.StaticFilesStorage", 
     },
 }
 
