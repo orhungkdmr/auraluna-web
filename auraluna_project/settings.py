@@ -121,15 +121,14 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'ULTnxyuXxs_EJYOUlVX2--vsf_E' # <--- BURAYI DOLDUR
 }
 
-# --- DJANGO 5 İÇİN DEPOLAMA AYARLARI ---
+# --- DJANGO 5 İÇİN DEPOLAMA AYARLARI (SADE VE KESİN ÇÖZÜM) ---
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # SIKISTIRMAYI GECICI OLARAK KAPATTIK (Manifest kullanmıyoruz)
-        # Bu, sıkıştırma hatası nedeniyle build'in durmasını önler.
-        "BACKEND": "whitenoise.storage.StaticFilesStorage", 
+        # SIKISTIRMAYI TAMAMEN KALDIRIYORUZ! (Sadece kopyalamayı garantilemek için)
+        "BACKEND": "whitenoise.storage.WhiteNoiseStorage", 
     },
 }
 
