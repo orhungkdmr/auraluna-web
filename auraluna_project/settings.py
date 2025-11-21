@@ -137,9 +137,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Django bunları otomatik bulacaktır.
 # Ana dizinde artık 'static' klasörü olmadığı için aşağıdaki satırı YORUM SATIRI yaptık.
 # STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static') ]
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'pages', 'static'),
-]
+STATICFILES_DIRS = []
 # ---------------------------
 # --- CANLI SUNUCU AYARLARI (DEBUG=False ise) ---
 if not DEBUG:
