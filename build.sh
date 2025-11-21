@@ -2,12 +2,11 @@
 # exit on error
 set -o errexit
 
-echo "---------------------------------------------"
-echo "--- DEDEKTIF BASLADI: static ICINDE NE VAR? ---"
-ls -R static/
-echo "---------------------------------------------"
-
-# Normal kurulum devam ediyor
+# 1. Paketleri Kur
 pip install -r requirements.txt
-python manage.py collectstatic --no-input --clear --verbosity 2
+
+# 2. Statik Dosyaları Topla (Debug parametrelerini kaldırdık)
+python manage.py collectstatic --no-input
+
+# 3. Veritabanını Güncelle
 python manage.py migrate
