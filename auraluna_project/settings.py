@@ -3,57 +3,42 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 import sys
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+print(f" --- DEBUG: BASE_DIR is: {BASE_DIR} ---")
 
-# .env dosyasını yükle (Varsa)
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# ==================================================
-# === ORTAM KONTROLÜ (RENDER MI LOCAL MI?) ===
-# ==================================================
-# Render otomatik olarak 'RENDER' değişkenini set eder.
-IN_RENDER = os.environ.get('RENDER')
-
-if IN_RENDER:
-    # Canlı Sunucu (Render)
-    DEBUG = False
-    print("--- DURUM: CANLI SUNUCUDAYIZ (RENDER) ---")
-else:
-    # Yerel Bilgisayar
-    DEBUG = True
-    print("--- DURUM: YEREL BILGISAYARDAYIZ (LOCAL) ---")
-
-# ==================================================
-# === GÜVENLİK AYARLARI ===
-# ==================================================
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-varsayilan-anahtar-degistir')
-
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
+# --- DEBUG AYARI ---
+# Render'da otomatik False olur, lokalde True
+IN_RENDER = 'RENDER' in os.environ
+if IN_RENDER:
+    DEBUG = False
+    print("--- ORTAM: RENDER (CANLI) ---")
+else:
+    DEBUG = True
+    print("--- ORTAM: LOCAL (BILGISAYAR) ---")
 
-# ==================================================
-# === UYGULAMALAR (APPS) ===
-# ==================================================
 INSTALLED_APPS = [
-    'cloudinary_storage', # En üstte olmalı
+    'cloudinary_storage',          # 1. SIRA (Çok Önemli)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', # Whitenoise
-    'cloudinary', # Cloudinary
-
-    # Kendi Uygulamalarımız
+    'django.contrib.staticfiles',
+    'cloudinary',                  # 2. SIRA (Mutlaka burada)
     'products',
     'pages',
     'cart',
     'orders',
     'accounts',
-    
-    # 3. Parti
     'crispy_forms',
     'crispy_bootstrap5',
     'django_filters',
@@ -95,10 +80,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'auraluna_project.wsgi.application'
 
-
-# ==================================================
-# === VERİTABANI AYARI ===
-# ==================================================
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
@@ -106,10 +87,6 @@ DATABASES = {
     )
 }
 
-
-# ==================================================
-# === ŞİFRE VE DİL AYARLARI ===
-# ==================================================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -122,42 +99,49 @@ TIME_ZONE = 'Europe/Istanbul'
 USE_I18N = True
 USE_TZ = True
 
-
 # ==================================================
-# === STATİK VE MEDYA AYARLARI (CLOUDINARY GARANTİ) ===
+# === STATİK DOSYALAR (CSS, JS) ===
 # ==================================================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
 
-# Statik dosyaların yeri (Ana dizindeki assets klasörü)
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'assets'),
-]
-
-# CLOUDINARY KONTROLÜ
-# Eğer Render ortam değişkenlerinde CLOUDINARY_URL varsa, bulut depolamayı aç.
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
-
-if CLOUDINARY_URL:
-    # --- CANLI ORTAM (CLOUD) ---
-    print("--- DURUM: CLOUDINARY BULUNDU, BULUT DEPOLAMA AKTİF ---")
-    
-    # Statik dosyalar (CSS/JS) için Whitenoise
+if IN_RENDER:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    
-    # Medya dosyaları (Resimler) için Cloudinary
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
-    # Cloudinary statik dosyaları yönetmesin
-    CLOUDINARY_STORAGE_MANAGE_STATICFILES = False
-    
-    # DİKKAT: Media URL tanımlamıyoruz, Cloudinary kendisi veriyor.
-    
-else:
-    # --- YEREL ORTAM (LOCAL) ---
-    print("--- DURUM: CLOUDINARY YOK, YEREL DEPOLAMA AKTİF ---")
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ==================================================
+# === MEDYA VE CLOUDINARY (ZORUNLU AKTİF) ===
+# ==================================================
+# Burası HİÇBİR ŞARTA BAĞLI DEĞİL. Her zaman çalışacak.
+
+# 1. Cloudinary Bilgileri
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dkqwfaufv',
+    'API_KEY': '934879957763873',
+    'API_SECRET': 'ULTnxyuXxs_EJYOUlVX2--vsf_E' # <--- BURAYI DOLDUR
+}
+
+# 2. Django 5 İçin Yeni Depolama Yapısı (STORAGES)
+# Eski DEFAULT_FILE_STORAGE yerine bu kullanılır.
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+# 3. Cloudinary Kütüphanesini Manuel Başlatma
+import cloudinary
+cloudinary.config(
+    cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key = CLOUDINARY_STORAGE['API_KEY'],
+    api_secret = CLOUDINARY_STORAGE['API_SECRET'],
+    secure = True
+)
+
+print("--- MOD: DJANGO 5 STORAGES AYARLARI AKTİF (CLOUDINARY) ---")
 
 # ==================================================
 # === DİĞER AYARLAR ===
