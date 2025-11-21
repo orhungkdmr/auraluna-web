@@ -15,6 +15,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-varsayilan-anahtar-degistir')
 
 # DEBUG ayarı: .env dosyasında 'True' yazıyorsa True, yoksa False kabul eder.
+# Render'da bu değişkeni Environment Variables'a 'False' olarak ekledik.
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
@@ -24,7 +25,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 # === UYGULAMALAR (APPS) ===
 # ==================================================
 INSTALLED_APPS = [
-    # 3. Parti - Cloudinary (En üste koymak bazen gerekebilir ama burada güvenli)
+    # 3. Parti - Cloudinary
     'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -32,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     
-    # Whitenoise (staticfiles'dan önce olması önerilmez, middleware halleder)
+    # Whitenoise (staticfiles'dan önce olmasa da olur ama burada durması standarttır)
     'django.contrib.staticfiles',
     
     'cloudinary', # Cloudinary ana uygulaması
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Whitenoise burada olmalı
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Whitenoise BURADA OLMALI
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -91,7 +92,7 @@ WSGI_APPLICATION = 'auraluna_project.wsgi.application'
 # ==================================================
 # === VERİTABANI AYARI (HİBRİT) ===
 # ==================================================
-# Eğer .env dosyasında DATABASE_URL varsa onu kullanır (PostgreSQL vb.)
+# Eğer .env dosyasında DATABASE_URL varsa onu kullanır (Render PostgreSQL)
 # Yoksa otomatik olarak yerel db.sqlite3 dosyasına düşer.
 DATABASES = {
     'default': dj_database_url.config(
@@ -122,15 +123,21 @@ USE_TZ = True
 
 
 # ==================================================
-# === STATİK VE MEDYA AYARLARI (AKILLI HİBRİT) ===
+# === STATİK VE MEDYA AYARLARI (RENDER UYUMLU) ===
 # ==================================================
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_URL = '/static/'
+
+# collectstatic komutunun dosyaları toplayacağı yer (Render burayı kullanır)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# --- CANLI SUNUCU AYARLARI (DEBUG=False) ---
+# Senin oluşturduğun statik dosyaların yeri
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# --- CANLI SUNUCU AYARLARI (DEBUG=False ise) ---
 if not DEBUG:
-    # Statik dosyalar için Whitenoise
+    # Statik dosyalar için Whitenoise (Sıkıştırma ve Caching)
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
     # Medya (Resimler) için Cloudinary
@@ -142,14 +149,13 @@ if not DEBUG:
     
     MEDIA_URL = '/media/' 
 
-# --- YEREL GELİŞTİRME AYARLARI (DEBUG=True) ---
+# --- YEREL GELİŞTİRME AYARLARI (DEBUG=True ise) ---
 else:
     # Bilgisayarında resimleri klasöre kaydet
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     
-    # Statik dosyalar için varsayılan Django davranışı yeterli
-    # (Otomatik olarak STATICFILES_DIRS'den okur)
+    # Yerelde standart Django statik sunucusu kullanılır
 
 
 # ==================================================
@@ -161,14 +167,14 @@ CART_SESSION_ID = 'cart'
 # Login/Logout yönlendirmeleri
 LOGIN_REDIRECT_URL = "pages:home"
 LOGOUT_REDIRECT_URL = "pages:home"
-LOGIN_URL = "login" # Login required dekoratörü için
+LOGIN_URL = "login"
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # E-posta Ayarları (SMTP)
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend') # Env yoksa konsola basar
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
