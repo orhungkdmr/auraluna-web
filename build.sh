@@ -26,3 +26,9 @@ python manage.py collectstatic --no-input
 
 echo "--- 4. VERITABANI GUNCELLEMESI ---"
 python manage.py migrate
+
+echo "--- 5. VERILER YUKLENIYOR (FIXTURES) ---"
+python manage.py loaddata products/fixtures/initial_data.json
+
+echo "--- 6. YONETICI KONTROLU ---"
+python create_superuser.py
