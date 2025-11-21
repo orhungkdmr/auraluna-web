@@ -124,35 +124,40 @@ USE_TZ = True
 
 
 # ==================================================
-# === STATİK VE MEDYA AYARLARI (KESİN ÇÖZÜM) ===
+# === STATİK VE MEDYA AYARLARI (CLOUDINARY GARANTİ) ===
 # ==================================================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Dosyalar 'assets' klasöründe
+# Statik dosyaların yeri (Ana dizindeki assets klasörü)
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'assets'),
 ]
 
-# --- RENDER (CANLI) AYARLARI ---
-if IN_RENDER:
-    # Statik Dosyalar (CSS/JS) -> Whitenoise
+# CLOUDINARY KONTROLÜ
+# Eğer Render ortam değişkenlerinde CLOUDINARY_URL varsa, bulut depolamayı aç.
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+
+if CLOUDINARY_URL:
+    # --- CANLI ORTAM (CLOUD) ---
+    print("--- DURUM: CLOUDINARY BULUNDU, BULUT DEPOLAMA AKTİF ---")
+    
+    # Statik dosyalar (CSS/JS) için Whitenoise
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
-    # Medya Dosyaları (Resimler) -> Cloudinary
-    CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+    # Medya dosyaları (Resimler) için Cloudinary
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     
-    # Cloudinary'ye statik dosyaları karıştırma diyoruz
+    # Cloudinary statik dosyaları yönetmesin
     CLOUDINARY_STORAGE_MANAGE_STATICFILES = False
     
-    # DİKKAT: Canlıda MEDIA_URL tanımlamıyoruz, Cloudinary URL'i kendi verir.
-
-# --- LOCAL (BILGISAYAR) AYARLARI ---
+    # DİKKAT: Media URL tanımlamıyoruz, Cloudinary kendisi veriyor.
+    
 else:
+    # --- YEREL ORTAM (LOCAL) ---
+    print("--- DURUM: CLOUDINARY YOK, YEREL DEPOLAMA AKTİF ---")
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # ==================================================
 # === DİĞER AYARLAR ===
