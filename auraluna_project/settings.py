@@ -145,14 +145,9 @@ if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
     # Medya (Resimler) için Cloudinary
-    CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL') 
+   
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     
-    # Cloudinary statik dosyaları yönetmesin, onu Whitenoise yapıyor
-    CLOUDINARY_STORAGE_MANAGE_STATICFILES = False 
-    
-    MEDIA_URL = '/media/' 
-
 # --- YEREL GELİŞTİRME AYARLARI (DEBUG=True ise) ---
 else:
     # Bilgisayarında resimleri klasöre kaydet
