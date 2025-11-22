@@ -932,74 +932,190 @@ a[data-bs-toggle="collapse"]:not(.collapsed) i {
     border-color: #333;
 }
 
-/* --- MOBİL HEADER FIX (992px altı) --- */
+/* ... (Mevcut CSS Kodları) ... */
+
+
+/* ================================================= */
+/* === DUYARLI TASARIM (RESPONSIVE) İYİLEŞTİRMELERİ === */
+/* ================================================= */
+
+/* Ekran 992px'den küçük olduğunda (Tablet ve Mobil) */
 @media (max-width: 991.98px) {
+
+    /* --- Genel Düzen Ayarları --- */
+    .main-content { 
+        padding-top: 0 !important; /* Home sayfasında zaten 0, diğer sayfalarda da mobil header'ın sabit yüksekliği kadar boşluk bırakılacak */
+    }
     
-    /* 1. HEADER TOP FIX: Elemanları sarmala */
-    .site-header .header-top {
-        flex-wrap: wrap;
-        padding: 10px 15px;
+    /* --- HEADER ve NAVİGASYON --- */
+
+    /* Sabit header'ın normal içeriği engellememesi için padding ekleyelim. 
+       Mobil header yüksekliğini 120px olarak varsayarak bu değeri kullanıyoruz. 
+       Bu, alt içeriği ezmemesi için önemlidir. */
+    body:not(.page-home) .main-content {
+        padding-top: 130px !important;
     }
 
-    /* 2. ANA SÜTUNLARI TAM GENİŞLİĞE ÇEK VE ORTALANDIR */
-    .site-header .header-search, 
-    .site-header .header-logo, 
-    .site-header .header-icons {
-        width: 100%; 
-        text-align: center;
-        margin-bottom: 0 !important;
-        padding: 0 15px;
+    /* Header'ı şeffaflıktan çıkarıp sabit arka plan verelim, okumayı kolaylaştırır */
+    .site-header {
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #dee2e6;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .site-header::before {
+        opacity: 0 !important; /* Arka plan bulanıklığını mobilde gizle */
     }
 
-    /* 3. LOGO YUVARLAĞINI KÜÇÜLT */
+    /* Header Top Düzeni (Logo, Hamburger, İkonlar) */
+    .header-top {
+        flex-wrap: wrap; /* Öğeleri alt alta yığmayı etkinleştirir */
+        padding: 10px 15px 0 15px; /* Üst boşluk bırak, altı arama çubuğuna kalsın */
+    }
+
+    /* Logo Yüksekliği */
     .header-logo img {
-        height: 70px; /* Logoyu küçült */
-        padding: 5px 0;
+        height: 55px; /* Logoyu daha küçük yap */
+        width: auto;
     }
 
-    /* 4. SIRALAMA (Search, Logo ve İkonları Dikey Sırala) */
-    .site-header .header-logo {
-        order: 1; /* Ortaya gelmeli */
-    }
-    
-    /* Hamburger menü için sol tarafta boşluk bırak */
-    .site-header .header-top .d-lg-none { 
-        order: 1;
-        width: 50px;
-        position: absolute;
-        left: 0;
-        top: 20px;
-        z-index: 10;
-    }
-
-    /* 5. ARAMAYI EN ÜSTE TAŞI */
-    .site-header .header-search { 
-        order: 2; /* Aramayı logonun üstüne taşı */
+    /* Mobil Kontroller (Hamburger, Logo, İkonlar) */
+    .mobile-header-controls {
+        order: 1; 
+        width: 100%;
         padding: 0;
-        margin-top: 10px;
+        margin-bottom: 5px; /* Arama çubuğu ile arasına boşluk bırak */
+    }
+
+    /* Mobil İkon Grubu Düzeni (right_nav.html) */
+    .header-icons-mobile .header-icons-right .navbar-nav {
+        gap: 0.5rem; /* İkonlar arasındaki boşluğu artır */
+    }
+    /* İkon ve metin linklerini sadece ikon gösterecek şekilde düzenle */
+    .header-icons-mobile .icon-text-link span {
+        display: none; /* Metinleri gizle */
+    }
+    .header-icons-mobile .icon-text-link .nav-link {
+        padding-top: 0.25rem !important; 
+        padding-bottom: 0.25rem !important;
+        /* Sadece ikonu ortalamak için boşlukları sıfırla */
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    .header-icons-mobile .icon-text-link i.me-1 {
+        margin-right: 0 !important; /* İkon yanındaki boşluğu sıfırla */
+    }
+
+    /* Arama Çubuğu */
+    .site-header .mobile-search-bar { 
+        order: 2; 
+        width: 100%; 
+        padding: 0 15px 10px 15px !important; 
+        display: block !important;
+    }
+    .search-input.form-control {
+        height: 40px; /* Arama çubuğu yüksekliğini küçült */
+        font-size: 0.85rem;
+    }
+    .search-icon {
+        font-size: 1rem;
+    }
+
+    /* Masaüstü Navigasyonunu Tamamen Gizle */
+    .header-main-nav, 
+    .header-search.d-none.d-lg-block, 
+    .header-logo.d-none.d-lg-block,
+    .header-icons.d-none.d-lg-flex {
+        display: none !important;
     }
     
-    /* 6. ANA NAVİGASYON (ALTTTAKİ MENÜYÜ GİZLE) */
-    .site-header .header-main-nav {
+    /* --- KARUSEL VE İÇERİK --- */
+    .hero-swiper {
+        height: 50vh !important; /* Mobil ve küçük tabletler için karusel yüksekliğini düşür */
+        min-height: 350px;
+    }
+
+    /* Karusel İçeriği */
+    .hero-content {
+        padding: 15px;
+        text-align: center;
+    }
+    .hero-slide .hero-content h1 {
+        font-size: 1.8rem !important; 
+    }
+    .hero-slide .hero-content p.lead {
+        font-size: 0.9rem !important; 
+    }
+    .btn {
+        padding: 8px 16px; /* Butonları küçült */
+        font-size: 0.9rem;
+    }
+
+    /* Mega Menü'nün Mobil Cihazlarda Görünmemesini Sağla */
+    .network-style-menu .mega-menu-content {
         display: none !important; 
+    }
+
+    /* --- ÜRÜN LİSTELERİ İYİLEŞTİRMESİ --- */
+
+    /* Ürün gridini mobilde 2 sütuna zorla */
+    .product-grid-container {
+        --bs-gutter-x: 1rem; /* Yan boşlukları küçült */
+        --bs-gutter-y: 1.5rem;
+    }
+    .product-list-item {
+        width: 50%; /* Bootstrap sütun sistemi yerine %50 genişlik kullanıyoruz */
+        padding: 0 0.5rem; /* Sütun boşluğunu kendimiz veriyoruz */
+    }
+
+    /* Hızlı Ekle Alanını Sabit Göster (Hover yerine) */
+    .product-list-item .product-card:hover .quick-add-section {
+        opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;
+    }
+    .product-list-item .product-info-overlay {
+        /* Mobil cihazlarda ürün bilgisi overlay'ini görünür tut */
+        opacity: 1;
+        visibility: visible;
+        background: rgba(255, 255, 255, 0.9);
+        color: #343a40;
+        z-index: 10;
+        padding: 0.75rem 1rem 0.5rem 1rem;
+    }
+    .product-info-overlay .product-name-link {
+        color: #343a40 !important;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    .product-info-overlay .card-subtitle {
+        color: #dc3545;
+        font-size: 0.9rem;
+    }
+    .product-list-item .product-card:hover .product-info-overlay {
+        opacity: 1; /* Mobil cihazda hover ile gizlemeyi iptal et */
+        visibility: visible;
+        transition-delay: 0s;
+    }
+    .product-list-item .product-quick-view-button {
+        display: none !important; /* Hızlı Bakış butonunu gizle */
     }
 }
 
-/* --- MOBİL SLIDER YÜKSEKLİĞİ FIX --- */
-@media (max-width: 767.98px) {
-    /* SLIDER YÜKSEKLİĞİ */
+/* Küçük Mobil Cihazlar (iPhone SE, vs.) için 576px altı */
+@media (max-width: 575.98px) {
+    .header-logo img {
+        height: 45px; /* Daha küçük ekranlarda logo boyutunu daha da küçült */
+    }
     .hero-swiper {
-        height: 65vh !important; 
-        min-height: 400px; 
+        height: 40vh !important;
+        min-height: 300px;
     }
-
-    /* SLIDER İÇERİĞİNİ KÜÇÜLTME */
     .hero-slide .hero-content h1 {
-        font-size: 2rem !important;
-        line-height: 1.1;
+        font-size: 1.5rem !important; 
     }
-    
     .hero-slide .hero-content p.lead {
-        font-size: 1rem !important;
+        font-size: 0.8rem !important; 
+    }
+    .product-list-item {
+        width: 100%; /* Çok küçük cihazlarda tek sütun da düşünülebilir, ancak 2 sütun daha yaygındır. */
     }
 }
