@@ -931,3 +931,75 @@ a[data-bs-toggle="collapse"]:not(.collapsed) i {
     transform: scale(1.3);
     border-color: #333;
 }
+
+/* --- MOBİL HEADER FIX (992px altı) --- */
+@media (max-width: 991.98px) {
+    
+    /* 1. HEADER TOP FIX: Elemanları sarmala */
+    .site-header .header-top {
+        flex-wrap: wrap;
+        padding: 10px 15px;
+    }
+
+    /* 2. ANA SÜTUNLARI TAM GENİŞLİĞE ÇEK VE ORTALANDIR */
+    .site-header .header-search, 
+    .site-header .header-logo, 
+    .site-header .header-icons {
+        width: 100%; 
+        text-align: center;
+        margin-bottom: 0 !important;
+        padding: 0 15px;
+    }
+
+    /* 3. LOGO YUVARLAĞINI KÜÇÜLT */
+    .header-logo img {
+        height: 70px; /* Logoyu küçült */
+        padding: 5px 0;
+    }
+
+    /* 4. SIRALAMA (Search, Logo ve İkonları Dikey Sırala) */
+    .site-header .header-logo {
+        order: 1; /* Ortaya gelmeli */
+    }
+    
+    /* Hamburger menü için sol tarafta boşluk bırak */
+    .site-header .header-top .d-lg-none { 
+        order: 1;
+        width: 50px;
+        position: absolute;
+        left: 0;
+        top: 20px;
+        z-index: 10;
+    }
+
+    /* 5. ARAMAYI EN ÜSTE TAŞI */
+    .site-header .header-search { 
+        order: 2; /* Aramayı logonun üstüne taşı */
+        padding: 0;
+        margin-top: 10px;
+    }
+    
+    /* 6. ANA NAVİGASYON (ALTTTAKİ MENÜYÜ GİZLE) */
+    .site-header .header-main-nav {
+        display: none !important; 
+    }
+}
+
+/* --- MOBİL SLIDER YÜKSEKLİĞİ FIX --- */
+@media (max-width: 767.98px) {
+    /* SLIDER YÜKSEKLİĞİ */
+    .hero-swiper {
+        height: 65vh !important; 
+        min-height: 400px; 
+    }
+
+    /* SLIDER İÇERİĞİNİ KÜÇÜLTME */
+    .hero-slide .hero-content h1 {
+        font-size: 2rem !important;
+        line-height: 1.1;
+    }
+    
+    .hero-slide .hero-content p.lead {
+        font-size: 1rem !important;
+    }
+}
